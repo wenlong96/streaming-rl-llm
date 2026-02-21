@@ -1,0 +1,43 @@
+services:
+  # 1. Redpanda (Data Streaming)
+  redpanda:
+    image: docker.redpanda.com/redpanda/redpanda:v23.3.6
+    command:
+      - redpanda start
+      - --smp 1  # Limit to 1 core for efficiency
+      - --kafka-addr internal://0.0.0.0:9092,external://0.0.0.0:19092
+      - --advertise-kafka-addr internal://redpanda:9092,external://localhost:19092
+    ports:
+      - "19092:19092"
+      - "9644:9644"
+    volumes:
+      - redpanda-data:/var/lib/redpanda/data
+
+  # 2. RL Training Service (GPU Accelerated)
+  rlhf-engine:
+    build: ./rlhf_service
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    volumes:
+      - ./models:/app/models  # Persist trained models
+    environment:
+      - KAFKA_BOOTSTRAP_SERVERS=redpanda:9092
+      - HUGGING_FACE_HUB_TOKEN=${HF_TOKEN}
+    depends_on:
+      - redpanda
+
+  # 3. Data Producer
+  stream-producer:
+    build: ./stream_service
+    environment:
+      - KAFKA_BOOTSTRAP_SERVERS=redpanda:9092
+    depends_on:
+      - redpanda
+
+volumes:
+  redpanda-data:
