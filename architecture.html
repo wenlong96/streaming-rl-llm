@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>WiLLi Architecture</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #060810; font-family: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace; }
+  ::-webkit-scrollbar { width: 6px; } 
+  ::-webkit-scrollbar-track { background: #0d1117; }
+  ::-webkit-scrollbar-thumb { background: #21262d; border-radius: 3px; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState } = React;
+
+const nodes = {
+  user: {
+    id: "user", label: "User", sublabel: "Browser", color: "#64ffda",
+    details: {
+      title: "Client Layer",
+      specs: ["HTTP/HTTPS", "Streamlit WebSocket", "Chunked Transfer Encoding for streaming"],
+      desc: "End user interacts via Streamlit's reactive frontend. Responses are streamed token-by-token using chunked HTTP transfer encoding, eliminating wait time for LLM generation."
+    }
+  },
+  streamlit: {
+    id: "streamlit", label: "Streamlit Frontend", sublabel: "app.py · Port 8501", color: "#FF4B4B",
+    details: {
+      title: "Streamlit App · app.py",
+      specs: ["Python 3.11", "Streamlit 1.x", "Session State Management", "Admin RLHF UI (password-gated)"],
+      desc: "Reactive frontend with dual-mode operation. Public mode serves the AI clone. Admin mode (password-protected) exposes the RLHF feedback loop — allowing DPO training pairs to be pushed to Redpanda in real time."
+    }
+  },
+  fastapi: {
+    id: "fastapi", label: "FastAPI Backend", sublabel: "api.py · Port 8000", color: "#00d4ff",
+    details: {
+      title: "FastAPI Backend · api.py",
+      specs: ["FastAPI + Uvicorn", "StreamingResponse", "Threading for non-blocking generation", "PEFT adapter hot-loading"],
+      desc: "Async REST API that orchestrates RAG retrieval and LLM generation. Uses Python threading to run model.generate() in a background thread while streaming tokens via TextIteratorStreamer, keeping the event loop unblocked."
+    }
+  },
+  rag: {
+    id: "rag", label: "RAG Pipeline", sublabel: "ChromaDB · all-MiniLM-L6-v2", color: "#a78bfa",
+    details: {
+      title: "Retrieval-Augmented Generation",
+      specs: ["ChromaDB vector store", "sentence-transformers/all-MiniLM-L6-v2", "384-dim embeddings", "Top-k=4 similarity search", "PyPDFLoader ingestion"],
+      desc: "Will’s document repo, chunked and vectorized with MiniLM-L6-v2 (384-dim dense vectors), and stored in ChromaDB. At inference time, the user query is embedded and cosine similarity retrieves the top-4 most relevant resume chunks, injected into the prompt as grounded context."
+    }
+  },
+  llm: {
+    id: "llm", label: "Qwen 2.5 3B Instruct", sublabel: "4-bit NF4 Quantized · CUDA", color: "#fbbf24",
+    details: {
+      title: "LLM Inference · Qwen 2.5 3B",
+      specs: ["BitsAndBytes 4-bit NF4 quantization", "Double quantization enabled", "bfloat16 compute dtype", "LoRA: r=16, α=32, dropout=0.05", "Target: q_proj, k_proj, v_proj, o_proj", "max_new_tokens=500, temp=0.4"],
+      desc: "Base model quantized to 4-bit using NF4 scheme with double quantization — reducing VRAM from ~6GB to ~2GB. LoRA adapter (r=16) is applied on all attention projection layers. If a trained adapter exists at ./willi_adapter, it is merged via PEFT for personalized inference."
+    }
+  },
+  producer: {
+    id: "producer", label: "Kafka Producer", sublabel: "stream_service/producer.py", color: "#f97316",
+    details: {
+      title: "Confluent Kafka Producer",
+      specs: ["confluent-kafka Python client", "Topic: rlhf-feedback", "JSON payload: {prompt, chosen, rejected}", "delivery_report callback", "Synchronous flush()"],
+      desc: "When admin submits an RLHF correction, a DPO training pair (prompt, chosen, rejected) is serialized to JSON and produced to the rlhf-feedback Redpanda topic. flush() ensures delivery before returning."
+    }
+  },
+  redpanda: {
+    id: "redpanda", label: "Redpanda Broker", sublabel: "Kafka-compatible · Port 9092", color: "#ff6b6b",
+    details: {
+      title: "Redpanda Message Broker",
+      specs: ["Kafka-compatible API", "Docker: redpandadata/redpanda:v23.3.6", "Topic: rlhf-feedback", "Single partition", "Persistent volume mount"],
+      desc: "Redpanda acts as the decoupled message bus between the feedback UI and the training loop. Using a message queue ensures the training step never blocks the frontend, and feedback is durably persisted even if the training loop is temporarily offline."
+    }
+  },
+  trainer: {
+    id: "trainer", label: "DPO Training Loop", sublabel: "train_loop.py · GPU", color: "#34d399",
+    details: {
+      title: "Online DPO Trainer · train_loop.py",
+      specs: ["TRL DPOTrainer", "LoRA online fine-tuning", "β=0.1 KL penalty", "max_length=1024", "bfloat16 training", "Adapter saved: ./willi_adapter", "Confluent Kafka Consumer"],
+      desc: "Polls Redpanda continuously for new DPO pairs. On receipt, runs a single gradient step using TRL's DPOTrainer with the Bradley-Terry preference model objective. LoRA weights are updated in-place and the adapter is checkpointed to disk — picked up by the API on next restart."
+    }
+  },
+  adapter: {
+    id: "adapter", label: "LoRA Adapter", sublabel: "./willi_adapter · .safetensors", color: "#818cf8",
+    details: {
+      title: "Trained LoRA Adapter",
+      specs: ["adapter_model.safetensors", "adapter_config.json", "PEFT PeftModel.from_pretrained()", "Persisted between sessions", "Incremental updates per feedback"],
+      desc: "The LoRA adapter represents WiLLi's learned personality — the delta between the base Qwen model and Will's preferred response style. Saved after every training step and loaded by the API at startup, closing the real-time RLHF loop."
+    }
+  }
+};
+
+const layout = [
+  { id: "user",      col: 2, row: 0 },
+  { id: "streamlit", col: 2, row: 1 },
+  { id: "rag",       col: 0, row: 2 },
+  { id: "fastapi",   col: 2, row: 2 },
+  { id: "llm",       col: 4, row: 2 },
+  { id: "producer",  col: 0, row: 3 },
+  { id: "redpanda",  col: 2, row: 3 },
+  { id: "trainer",   col: 4, row: 3 },
+  { id: "adapter",   col: 4, row: 4 },
+];
+
+const edges = [
+  { from: "user",      to: "streamlit", label: "HTTP request",            color: "#FF4B4B", dashed: false },
+  { from: "streamlit", to: "fastapi",   label: "POST /chat (streaming)",  color: "#00d4ff", dashed: false },
+  { from: "fastapi",   to: "rag",       label: "embed + search",          color: "#a78bfa", dashed: false },
+  { from: "rag",       to: "fastapi",   label: "top-4 chunks",            color: "#a78bfa", dashed: false },
+  { from: "fastapi",   to: "llm",       label: "prompt + context",        color: "#fbbf24", dashed: false },
+  { from: "llm",       to: "fastapi",   label: "streamed tokens",         color: "#fbbf24", dashed: false },
+  { from: "fastapi",   to: "streamlit", label: "chunked response",        color: "#00d4ff", dashed: false },
+  { from: "streamlit", to: "producer",  label: "DPO pair (admin only)",   color: "#f97316", dashed: true  },
+  { from: "producer",  to: "redpanda",  label: "produce to topic",        color: "#ff6b6b", dashed: true  },
+  { from: "redpanda",  to: "trainer",   label: "consume feedback",        color: "#34d399", dashed: true  },
+  { from: "trainer",   to: "adapter",   label: "save adapter weights",    color: "#818cf8", dashed: true  },
+  { from: "adapter",   to: "llm",       label: "loaded at startup",       color: "#818cf8", dashed: true  },
+];
+
+const COLS = 5, ROWS = 5;
+const CW = 175, CH = 110;
+const NW = 155, NH = 78;
+const PAD_X = 30, PAD_Y = 50;
+const SVG_W = COLS * CW + PAD_X * 2;
+const SVG_H = ROWS * CH + PAD_Y * 2;
+
+function nodeCenter(id) {
+  const item = layout.find(l => l.id === id);
+  return { x: PAD_X + item.col * CW + NW / 2, y: PAD_Y + item.row * CH + NH / 2 };
+}
+function nodeTL(id) {
+  const item = layout.find(l => l.id === id);
+  return { x: PAD_X + item.col * CW, y: PAD_Y + item.row * CH };
+}
+
+function App() {
+  const [selected, setSelected] = useState(null);
+  const [hoveredEdge, setHoveredEdge] = useState(null);
+  const node = selected ? nodes[selected] : null;
+
+  return (
+    <div style={{ background: "#060810", minHeight: "100vh", color: "#c9d1d9", padding: "1.5rem", fontFamily: "inherit" }}>
+      {/* Header */}
+      <div style={{ textAlign: "center", marginBottom: "1.5rem" }}>
+        <div style={{ fontSize: "0.65rem", letterSpacing: "0.3em", color: "#64ffda", marginBottom: "0.4rem" }}>
+          SYSTEM ARCHITECTURE · WILLI, WILL's AI CLONE
+        </div>
+        <h1 style={{
+          fontSize: "1.5rem", fontWeight: 600, margin: 0,
+          color: "#e6edf3", letterSpacing: "0.05em"
+        }}>
+          Real-Time RLHF Pipeline
+        </h1>
+        <p style={{ color: "#8b949e", fontSize: "0.75rem", marginTop: "0.4rem" }}>
+          Click any node to inspect technical specs · Dashed lines = RLHF training path (admin only)
+        </p>
+      </div>
+
+      <div style={{ display: "flex", gap: "1.5rem", alignItems: "flex-start", justifyContent: "center", flexWrap: "wrap" }}>
+        {/* Diagram */}
+        <div style={{ background: "#0d1117", border: "1px solid #21262d", borderRadius: "12px", overflow: "auto", boxShadow: "0 0 40px rgba(100,255,218,0.04)" }}>
+          <svg width={SVG_W} height={SVG_H}>
+            <defs>
+              {edges.map((e, i) => (
+                <marker key={i} id={`arr${i}`} markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+                  <path d="M0,0 L0,6 L6,3 z" fill={e.color} opacity="0.8" />
+                </marker>
+              ))}
+              <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
+                <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#111820" strokeWidth="0.5" />
+              </pattern>
+            </defs>
+            <rect width={SVG_W} height={SVG_H} fill="url(#grid)" />
+
+            {/* Section labels */}
+            <text x={PAD_X} y={PAD_Y - 10} fontSize="8" fill="#3d444d" letterSpacing="2">INFERENCE PATH</text>
+            <line x1={PAD_X} y1={PAD_Y + 2.65 * CH} x2={SVG_W - PAD_X} y2={PAD_Y + 2.65 * CH}
+              stroke="#1c2128" strokeWidth="1" strokeDasharray="4,4" />
+            <text x={PAD_X} y={PAD_Y + 2.65 * CH + 12} fontSize="8" fill="#3d444d" letterSpacing="2">RLHF TRAINING PATH (ADMIN)</text>
+
+            {/* Edges */}
+            {edges.map((e, i) => {
+              const f = nodeCenter(e.from), t = nodeCenter(e.to);
+              const dx = t.x - f.x, dy = t.y - f.y;
+              const dist = Math.sqrt(dx*dx + dy*dy);
+              const ux = dx/dist, uy = dy/dist;
+              const x1 = f.x + ux*(NW/2 - 2), y1 = f.y + uy*(NH/2 - 2);
+              const x2 = t.x - ux*(NW/2 + 6), y2 = t.y - uy*(NH/2 + 6);
+              const mx = (x1+x2)/2, my = (y1+y2)/2;
+              const isH = hoveredEdge === i;
+              return (
+                <g key={i}>
+                  <line x1={x1} y1={y1} x2={x2} y2={y2}
+                    stroke={e.color} strokeWidth={isH ? 2 : 1}
+                    strokeOpacity={isH ? 1 : 0.35}
+                    strokeDasharray={e.dashed ? "5,3" : "none"}
+                    markerEnd={`url(#arr${i})`}
+                    style={{ cursor: "default", transition: "all 0.15s" }}
+                    onMouseEnter={() => setHoveredEdge(i)}
+                    onMouseLeave={() => setHoveredEdge(null)}
+                  />
+                  {isH && (
+                    <text x={mx} y={my - 7} textAnchor="middle" fontSize="8.5"
+                      fill={e.color} stroke="#0d1117" strokeWidth="3" paintOrder="stroke">
+                      {e.label}
+                    </text>
+                  )}
+                </g>
+              );
+            })}
+
+            {/* Nodes */}
+            {layout.map(({ id }) => {
+              const n = nodes[id];
+              const { x, y } = nodeTL(id);
+              const cx = x + NW/2;
+              const isSel = selected === id;
+              return (
+                <g key={id} onClick={() => setSelected(isSel ? null : id)} style={{ cursor: "pointer" }}>
+                  {isSel && <rect x={x-5} y={y-5} width={NW+10} height={NH+10} rx="10" fill={n.color} opacity="0.12" />}
+                  <rect x={x} y={y} width={NW} height={NH} rx="6"
+                    fill={isSel ? "#161b22" : "#0d1117"}
+                    stroke={isSel ? n.color : "#21262d"}
+                    strokeWidth={isSel ? 1.5 : 1}
+                  />
+                  <rect x={x} y={y} width={NW} height={3} rx="2" fill={n.color} opacity={isSel ? 1 : 0.5} />
+                  <text x={cx} y={y+26} textAnchor="middle" fontSize="10.5" fontWeight="600"
+                    fill={isSel ? n.color : "#e6edf3"}>
+                    {n.label}
+                  </text>
+                  <text x={cx} y={y+43} textAnchor="middle" fontSize="8" fill="#8b949e">
+                    {n.sublabel}
+                  </text>
+                  <circle cx={x+NW-10} cy={y+NH-10} r="4" fill={n.color} opacity={isSel ? 1 : 0.25} />
+                </g>
+              );
+            })}
+          </svg>
+        </div>
+
+        {/* Detail Panel */}
+        <div style={{
+          width: "300px", minHeight: "380px",
+          background: "#0d1117", border: "1px solid #21262d",
+          borderRadius: "12px", padding: "1.25rem", flexShrink: 0
+        }}>
+          {!node ? (
+            <div style={{ color: "#3d444d", fontSize: "0.78rem", textAlign: "center", marginTop: "5rem" }}>
+              <div style={{ fontSize: "1.8rem", marginBottom: "0.75rem" }}>◈</div>
+              Select a node to inspect<br />its technical specifications
+            </div>
+          ) : (
+            <div>
+              <div style={{ fontSize: "0.6rem", letterSpacing: "0.25em", color: node.color, marginBottom: "0.4rem" }}>
+                COMPONENT DETAIL
+              </div>
+              <h2 style={{ fontSize: "0.9rem", fontWeight: 700, margin: "0 0 0.75rem 0", color: "#e6edf3", borderBottom: "1px solid #21262d", paddingBottom: "0.6rem" }}>
+                {node.details.title}
+              </h2>
+              <div style={{ marginBottom: "1rem" }}>
+                <div style={{ fontSize: "0.6rem", letterSpacing: "0.2em", color: "#8b949e", marginBottom: "0.4rem" }}>TECH SPECS</div>
+                {node.details.specs.map((s, i) => (
+                  <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: "0.4rem", fontSize: "0.75rem", color: "#c9d1d9", marginBottom: "0.3rem" }}>
+                    <span style={{ color: node.color, fontSize: "0.55rem", marginTop: "0.2rem" }}>▸</span>{s}
+                  </div>
+                ))}
+              </div>
+              <div>
+                <div style={{ fontSize: "0.6rem", letterSpacing: "0.2em", color: "#8b949e", marginBottom: "0.4rem" }}>HOW IT WORKS</div>
+                <p style={{ fontSize: "0.75rem", color: "#8b949e", lineHeight: 1.75, margin: 0 }}>{node.details.desc}</p>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Stack Pills */}
+      <div style={{ marginTop: "1.5rem", textAlign: "center" }}>
+        <div style={{ fontSize: "0.6rem", letterSpacing: "0.2em", color: "#3d444d", marginBottom: "0.6rem" }}>TECH</div>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: "0.4rem", justifyContent: "center" }}>
+          {["Qwen 2.5 3B","PEFT LoRA","TRL DPO","BitsAndBytes 4-bit","FastAPI","Streamlit","ChromaDB","all-MiniLM-L6-v2","Redpanda (Kafka)","confluent-kafka","CUDA","bfloat16"].map(t => (
+            <span key={t} style={{ background: "#161b22", border: "1px solid #21262d", borderRadius: "4px", padding: "0.18rem 0.55rem", fontSize: "0.68rem", color: "#8b949e" }}>
+              {t}
+            </span>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+</script>
+</body>
+</html>

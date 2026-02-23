@@ -1,14 +1,17 @@
 services:
   # 1. Redpanda (Data Streaming)
   redpanda:
-    image: docker.redpanda.com/redpanda/redpanda:v23.3.6
+    image: docker.redpanda.com/redpandadata/redpanda:v23.3.6
     command:
       - redpanda start
-      - --smp 1  # Limit to 1 core for efficiency
-      - --kafka-addr internal://0.0.0.0:9092,external://0.0.0.0:19092
-      - --advertise-kafka-addr internal://redpanda:9092,external://localhost:19092
+      - --smp 1
+      - --kafka-addr internal://0.0.0.0:19092,external://0.0.0.0:9092
+      - --advertise-kafka-addr internal://redpanda:19092,external://172.21.78.182:9092
     ports:
+      - "9092:9092"   # Add or verify this line
       - "19092:19092"
+      - "8081:8081"
+      - "8082:8082"
       - "9644:9644"
     volumes:
       - redpanda-data:/var/lib/redpanda/data

@@ -1,22 +1,36 @@
-from kafka import KafkaProducer
+import os
 import json
-import time
-import random
+from confluent_kafka import Producer
 
-producer = KafkaProducer(
-    bootstrap_servers='redpanda:9092',
-    value_serializer=lambda x: json.dumps(x).encode('utf-8')
-)
+# Local vs Docker
+BOOTSTRAP_SERVERS = os.getenv('KAFKA_BROKER', 'localhost:9092')
 
-prompts = [
-    "Explain quantum computing like I'm five.",
-    "Write a python function to reverse a list.",
-    "What is the capital of France?",
-    "Analyze the sentiment of this tweet: I love AI!"
-]
+def get_producer():
+    conf = {
+        'bootstrap.servers': BOOTSTRAP_SERVERS,
+        'client.id': 'willi-producer',
+    }
+    return Producer(conf)
 
-while True:
-    data = {"prompt": random.choice(prompts)}
-    producer.send('user-prompts', value=data)
-    print(f"Sent: {data}")
-    time.sleep(5) # Send a new prompt every 5 seconds
+def stream_rlhf_feedback(prompt, chosen, rejected):
+    producer = get_producer()
+    
+    payload = {
+        "prompt": prompt,
+        "chosen": chosen,
+        "rejected": rejected
+    }
+    
+    def delivery_report(err, msg):
+        if err is not None:
+            print(f"Message delivery failed: {err}")
+        else:
+            print(f"Message delivered to {msg.topic()} [{msg.partition()}]")
+
+    producer.produce(
+        'rlhf-feedback', 
+        value=json.dumps(payload).encode('utf-8'), 
+        callback=delivery_report
+    )
+    
+    producer.flush()

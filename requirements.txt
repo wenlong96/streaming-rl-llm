@@ -1,0 +1,32 @@
+# Infrastructure
+confluent-kafka==2.4.0
+requests==2.31.0
+python-dotenv
+
+# Frontend
+streamlit==1.32.0
+
+# Backend & LLM
+fastapi
+uvicorn
+transformers==4.44.2
+accelerate
+peft
+trl
+bitsandbytes>=0.46.1
+
+# RAG
+chromadb==0.5.23
+langchain
+langchain-community
+langchain-huggingface
+langchain-chroma
+sentence-transformers
+
+# Torch (CUDA)
+--extra-index-url https://download.pytorch.org/whl/cu121
+torch==2.2.1+cu121
+
+# Misc
+protobuf<5
+packaging<24

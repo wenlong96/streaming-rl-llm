@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Will's Projects</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #060810;
+  --surface: #0d1117;
+  --border: #21262d;
+  --border2: #2d333b;
+  --text: #e6edf3;
+  --muted: #8b949e;
+  --dim: #3d444d;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'JetBrains Mono', monospace;
+  min-height: 100vh;
+  padding: 2rem 1.5rem 3rem;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: 
+    linear-gradient(#111820 1px, transparent 1px),
+    linear-gradient(90deg, #111820 1px, transparent 1px);
+  background-size: 24px 24px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.container { position: relative; z-index: 1; max-width: 1100px; margin: 0 auto; }
+
+.header { text-align: center; margin-bottom: 3rem; }
+.header-label {
+  font-size: 0.65rem;
+  letter-spacing: 0.3em;
+  color: #64ffda;
+  margin-bottom: 0.5rem;
+}
+.header h1 {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 1.8rem;
+  font-weight: 600;
+  color: #e6edf3;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.5rem;
+}
+.header p { color: var(--muted); font-size: 0.78rem; }
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 1.25rem;
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1.5rem;
+  position: relative;
+  overflow: hidden;
+  cursor: default;
+  transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+  animation: fadeUp 0.5s ease both;
+  display: flex;
+  flex-direction: column;
+}
+.card:hover {
+  border-color: var(--accent);
+  transform: translateY(-3px);
+  box-shadow: 0 12px 40px rgba(0,0,0,0.4);
+}
+.card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: var(--accent);
+  opacity: 0.7;
+  transition: opacity 0.2s;
+}
+.card:hover::before { opacity: 1; }
+.card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at top left, var(--accent) 0%, transparent 60%);
+  opacity: 0;
+  transition: opacity 0.3s;
+  pointer-events: none;
+}
+.card:hover::after { opacity: 0.05; }
+
+.card-num {
+  font-size: 0.6rem;
+  color: var(--dim);
+  letter-spacing: 0.2em;
+  margin-bottom: 0.75rem;
+}
+.card-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 0.4rem;
+  line-height: 1.3;
+}
+.impact {
+  display: inline-block;
+  font-size: 0.65rem;
+  color: var(--accent);
+  border: 1px solid var(--accent);
+  border-radius: 3px;
+  padding: 0.15rem 0.5rem;
+  margin-bottom: 0.85rem;
+  letter-spacing: 0.05em;
+  opacity: 0.85;
+}
+.card-desc {
+  font-size: 0.75rem;
+  color: var(--muted);
+  line-height: 1.75;
+  margin-bottom: 1rem;
+  flex: 1;
+}
+.pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin-bottom: 1.1rem;
+}
+.pill {
+  background: #161b22;
+  border: 1px solid var(--border2);
+  border-radius: 3px;
+  padding: 0.15rem 0.5rem;
+  font-size: 0.65rem;
+  color: var(--muted);
+  letter-spacing: 0.03em;
+}
+.card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 1px solid var(--border);
+  padding-top: 0.85rem;
+  margin-top: auto;
+}
+.gh-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.7rem;
+  color: var(--accent);
+  text-decoration: none;
+  letter-spacing: 0.05em;
+  transition: opacity 0.2s;
+}
+.gh-link:hover { opacity: 0.7; }
+.dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  opacity: 0.5;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="header">
+    <div class="header-label">PORTFOLIO · WILL LIM WEN LONG</div>
+    <h1>Projects</h1>
+    <p>Data Scientist</p>
+  </div>
+
+  <div class="grid" id="grid"></div>
+
+</div>
+
+<script>
+const projects = [
+  {
+    num: "01",
+    title: "WiLLi — Real-Time RLHF AI Clone Chatbot",
+    impact: "End-to-End LLM Pipeline · Live DPO Fine-tuning",
+    desc: "Personal AI clone with a real-time RLHF feedback loop. Features a Streamlit admin UI for submitting DPO training pairs, Redpanda (Kafka) for streaming, and a live TRL DPOTrainer that updates a LoRA adapter on-the-fly. RAG pipeline over ChromaDB with 4-bit NF4 quantized Qwen 2.5 and async token streaming via FastAPI.",
+    pills: ["Qwen 2.5", "LoRA / PEFT", "TRL DPO", "BitsAndBytes NF4", "FastAPI", "Streamlit", "ChromaDB", "Redpanda", "Kafka", "CUDA"],
+    accent: "#FF4B4B",
+    github: "https://github.com/wenlong96/streaming-rl-llm"
+  },
+  {
+    num: "02",
+    title: "Graph ML — GNNs & Graph Transformers",
+    impact: "Node-level Prediction · Campaign Graph Modelling",
+    desc: "Framed ad campaign optimization as a node-level prediction problem on a k-NN campaign graph. Experimented with Graph Transformer architectures using Laplacian Positional Encoding (LapPE) and Global Attention. Evaluated over-smoothing and over-expressivity trade-offs between localized GNNs and fully connected attention models.",
+    pills: ["PyTorch", "DGL", "NetworkX", "Graph Transformers", "LapPE", "GNN", "Python"],
+    accent: "#a78bfa",
+    github: "https://github.com/wenlong96/graph_ml"
+  },
+  {
+    num: "03",
+    title: "Bayesian Network — Ad Campaign Optimization",
+    impact: "CPL Minimization · Probabilistic Inference · EM-MAP",
+    desc: "Built a Directed Acyclic Graph (DAG) / Bayesian Network to optimize Meta ad campaigns for real estate developers. Inferred latent demographics (Age, Gender) via EM-MAP with SensorTower priors, converging in 10–20 iterations. Modelled seasonal impression spikes (Lunar New Year, Hari Raya) using a Hidden Markov Model with Negative Binomial emission implemented in Pyro. Enables a priori CPL distribution estimation and headline optimization under constraints.",
+    pills: ["Bayesian Network", "DAG", "EM-MAP", "HMM", "Pyro", "Viterbi", "NB Emission", "pgmpy", "Python"],
+    accent: "#00d4ff",
+    github: "https://github.com/wenlong96/dag_inference_ads"
+  },
+  {
+    num: "04",
+    title: "Nutri-Grade Food Classification",
+    impact: "82.78% Accuracy · 39,000 Images · 78 SG Food Classes",
+    desc: "Computer vision system classifying 78 Singaporean food categories into Nutri-Grade health labels (A–D). Benchmarked Vanilla CNN, LeNet-5, VGG-16, ResNet-18, EfficientNet-B0, and ViT. EfficientNet-B0 achieved best accuracy via compound scaling and ImageNet transfer learning. ViT overfitting mitigated from 35% to 64% by freezing backbone and reducing model complexity.",
+    pills: ["EfficientNet-B0", "ViT", "ResNet-18", "VGG-16", "PyTorch", "Transfer Learning", "CNN", "Python"],
+    accent: "#34d399",
+    github: "https://github.com/wenlong96/cnn_food_image"
+  },
+  {
+    num: "05",
+    title: "Risk, Fraud & Anomaly Detection",
+    impact: "Credit Card Fraud · Highly Imbalanced Data",
+    desc: "End-to-end Python pipeline for credit card fraud detection on severely imbalanced financial transaction data. Handled class imbalance with ADASYN. Trained an ensemble of LightGBM, XGBoost, CatBoost, AdaBoost, Random Forest and SVMs. Hyperparameters tuned via Bayesian Optimization using BayesSearchCV with DeadlineStopper and DeltaYStopper automated early-stopping callbacks.",
+    pills: ["LightGBM", "XGBoost", "CatBoost", "ADASYN", "BayesSearchCV", "Plotly", "scikit-learn", "Python"],
+    accent: "#f97316",
+    github: "https://github.com/wenlong96/risk_fraud_anomaly"
+  },
+  {
+    num: "06",
+    title: "High-Performance Time Series Forecasting",
+    impact: "20% MAPE Reduction · 50+ Item Categories",
+    desc: "Scalable forecasting architectures for daily sales and inventory demand. Built deep LSTM networks in R with Keras/TensorFlow using PACF analysis for autocorrelation. Engineered rolling-window lag features (1d/7d) with LightGBM. Parallelized model training across 50+ SKUs using doParallel and foreach for multicore compute optimization.",
+    pills: ["LSTM", "LightGBM", "ARIMAX", "Keras", "TensorFlow", "R", "doParallel", "imputeTS", "mlr3"],
+    accent: "#fbbf24",
+    github: "https://github.com/wenlong96/lgbm_time_series"
+  },
+  {
+    num: "07",
+    title: "Relational Database — Q&M Dental",
+    impact: "Singapore's Largest Private Dental Group",
+    desc: "Designed and deployed a comprehensive scheduling and inventory database for Q&M Dental. Translated complex multi-branch business requirements into an ERM, normalized to Third Normal Form (3NF) to eliminate transitive and partial dependencies. Implemented MySQL schemas with cascading foreign keys for real-time room and equipment scheduling across branches.",
+    pills: ["MySQL", "ERD", "3NF Normalization", "SQL", "Referential Integrity", "Database Design"],
+    accent: "#64ffda",
+    github: "https://github.com/wenlong96/data_management"
+  }
+];
+
+const grid = document.getElementById('grid');
+projects.forEach((p, i) => {
+  const card = document.createElement('div');
+  card.className = 'card';
+  card.style.setProperty('--accent', p.accent);
+  card.style.animationDelay = `${i * 0.08}s`;
+  card.innerHTML = `
+    <div class="card-num">PROJECT ${p.num}</div>
+    <div class="card-title">${p.title}</div>
+    <div class="impact">${p.impact}</div>
+    <div class="card-desc">${p.desc}</div>
+    <div class="pills">${p.pills.map(t => `<span class="pill">${t}</span>`).join('')}</div>
+    <div class="card-footer">
+      <a class="gh-link" href="${p.github}" target="_blank">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/>
+        </svg>
+        View on GitHub ↗
+      </a>
+      <div class="dot"></div>
+    </div>
+  `;
+  grid.appendChild(card);
+});
+</script>
+</body>
+</html>

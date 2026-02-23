@@ -1,0 +1,155 @@
+# WILL LIM WEN LONG — COMPREHENSIVE PROFILE FOR RAG CONTEXT
+
+## PERSONAL INFORMATION
+
+Name: Will Lim Wen Long
+Role: Senior Data Scientist
+Scholarship: IMDA Singapore Digital Scholar (Postgraduate, Artificial Intelligence)
+Email: wenlonglim96@hotmail.com
+Phone: +65 98437531
+GitHub: [github.com/wenlong96](https://www.google.com/search?q=https://github.com/wenlong96)
+LinkedIn: [linkedin.com/in/limwenlong/](https://www.google.com/search?q=https://linkedin.com/in/limwenlong/)
+Location: Singapore
+
+## PERSONALITY & COMMUNICATION STYLE
+
+Will is energetic, enthusiastic, and passionate about AI and data science. He communicates in a friendly, high-energy tone and enjoys sharing technical knowledge. He is collaborative, detail-oriented, and driven by real-world impact. He values transparency and ethical AI practices. Will is proud of his Singaporean roots and his work often reflects the Singapore tech landscape.
+
+## TECHNICAL SKILLS
+
+**Programming Languages & Databases:**
+Python, R, SQL, PostgreSQL, MySQL
+
+**Frameworks & Libraries:**
+PyTorch, Keras, TensorFlow, LangChain, LlamaIndex, scikit-learn, skopt (BayesSearchCV), imbalanced-learn (ADASYN), Pyro (Probabilistic Programming), PyTesseract, asyncio, Selenium, NetworkX, DGL (Deep Graph Library), Hugging Face `transformers`, `sentence-transformers`, mlr3, fpp2, imputeTS, doParallel (R multicore processing), Plotly, FastAPI, Uvicorn, Streamlit, Pydantic
+
+**Machine Learning & Deep Learning:**
+Large Language Models (Qwen, PEFT, LoRA), RLHF (DPO), Vision Transformers (ViT), CNNs (EfficientNet, ResNet, VGG, LeNet), U-Net, Graph Neural Networks (Graph Transformers, Laplacian Positional Encoding / LapPE), Time Series Analysis (LSTM, ARIMAX), Gradient Boosting (LightGBM, XGBoost, CatBoost, AdaBoost), Bayesian Networks, EM-MAP Estimation, Hidden Markov Models (HMM), Isolation Forests, Autoencoders, SMOTE/ADASYN.
+
+**MLOps & Data Engineering:**
+Retrieval-Augmented Generation (RAG), Agentic RAG, Graph RAG, Vector Databases (ChromaDB), Quantization (BitsAndBytes NF4, bfloat16), CUDA, Real-time Event Streaming (Kafka, Redpanda, confluent-kafka), Docker, Azure DevOps, Git, Power Automate, Copilot Studio, Tableau, PowerBI.
+
+ALL PROJECTS:
+
+## PROJECT: WiLLi — Real-Time RLHF AI Clone Chatbot
+
+WiLLi is Will's personal AI clone, built as a portfolio project to demonstrate end-to-end ML engineering, LLM fine-tuning, and real-time data streaming capabilities.
+
+**Architecture Overview:**
+
+* **Frontend:** Streamlit app with dual-mode operation — Public chat mode and Admin RLHF training mode (password-protected).
+* **Backend:** FastAPI serving on Port 8000, with async streaming responses using TextIteratorStreamer and Python threading for non-blocking generation.
+* **LLM Setup:** Qwen 2.5 3B Instruct model, quantized to 4-bit NF4 using BitsAndBytes with double quantization, reducing VRAM usage from ~6GB to ~2GB. LoRA adapter (r=16, alpha=32) applied on q_proj, k_proj, v_proj, o_proj attention layers.
+* **RAG Pipeline:** Resume PDF ingested using PyPDFLoader, chunked and embedded with `sentence-transformers/all-MiniLM-L6-v2` (384-dimensional dense vectors), stored in ChromaDB. Top-k=4 cosine similarity retrieval at inference time.
+* **RLHF Training Loop:** Admin can submit DPO training pairs via the UI. Pairs are produced to a Redpanda (Kafka-compatible) topic called `rlhf-feedback` using `confluent-kafka`. A separate training process consumes from the topic and runs real-time DPO gradient steps using TRL's DPOTrainer with beta=0.1 KL penalty. LoRA adapter is dynamically saved and reloaded by the API.
+
+## PROJECT: Graphical Models for Ad Campaign Optimization
+
+Collaborated with a Singapore-based digital marketing company to optimize Meta advertising campaigns for real estate developers, minimizing Cost-Per-Lead (CPL) through advanced Bayesian inference.
+
+**Key Techniques & Architecture:**
+
+* **DAG / Bayesian Network:** Modeled probabilistic causal relationships between media buy inputs (budget, platform, audiences), latent demographics, headline elements (NLP embeddings), intermediate metrics (CPM, CTR, Reach), and CPL outputs.
+* **EM-MAP Estimation:** Used Expectation-Maximization with Maximum-A-Posteriori imputation to infer latent demographic variables (Age, Gender) from observable campaign data. Marginal priors were derived from SensorTower. Convergence achieved within 10-20 iterations.
+* **HMM for Seasonality:** Modeled irregular monthly impression spikes (Lunar New Year, year-end sales) using a latent-state Hidden Markov Model. Utilized a Negative Binomial emission distribution to handle high variance-to-mean ratios. Implemented via **Pyro** using `DiscreteHMM` and optimized with Adam.
+* **Graph Embeddings:** Leveraged SentenceTransformers (`Qwen3-Embedding-0.6B`) to generate and integrate headline embeddings into the causal graph.
+
+## PROJECT: Graph Machine Learning (GNNs & Graph Transformers)
+
+Framed ad campaign optimization as a node-level prediction and segmentation problem on a k-NN campaign graph, where nodes represent campaign configurations.
+
+* **Graph Transformer architecture:** Experimented with Global Attention mechanisms and Graph Transformers using Laplacian Positional Encoding (LapPE) to capture structural graph properties.
+* **Insights:** Conducted deep evaluations on model expressivity, handling over-smoothing and over-expressivity trade-offs in fully connected attention models versus localized GNNs (using NetworkX and DGL).
+
+## PROJECT: Risk, Fraud, and Anomaly Detection
+
+Engineered an end-to-end Python pipeline for credit card fraud detection on highly imbalanced financial transaction data.
+
+* **Data Engineering:** Interactive EDA and time-density tracking using `plotly.graph_objs` and `plotly.figure_factory`. Handled extreme class imbalances using **ADASYN** (Adaptive Synthetic Sampling).
+* **Modeling Ensemble:** Trained and evaluated an extensive suite of models including LightGBM, XGBoost, CatBoost, AdaBoost, Random Forest, and SVMs.
+* **Hyperparameter Tuning:** Utilized Bayesian Optimization via `skopt.BayesSearchCV` with `DeadlineStopper` and `DeltaYStopper` callbacks for highly efficient, automated hyperparameter search spaces.
+
+## PROJECT: Nutri-Grade Food Classification System
+
+Developed a computer vision system evaluating 78 Singaporean food categories (~39,000 images from FoodLG) to assign official "Nutri-Grade" health labels (A to D).
+
+* **Architectures Evaluated:** Vanilla CNN, LeNet-5, VGG-16, ResNet-18, EfficientNet-B0, Vision Transformer (ViT).
+* **Key Findings:** EfficientNet-B0 achieved the best accuracy (82.78% Direct 4-Class) due to balanced compound scaling. The ViT model initially suffered from severe dataset-size overfitting (35% accuracy), which was successfully mitigated to 64% by freezing the backbone and reducing model complexity. Hierarchical prediction pipelines (78-class to 4-class mapping) boosted deeper models like VGG-16.
+
+## PROJECT: High-Performance Time Series Forecasting (R & Deep Learning)
+
+Built scalable forecasting architectures for daily sales and inventory demand modeling, yielding a 20% MAPE reduction in enterprise use-cases.
+
+* **LSTM Networks:** Developed Deep Learning sequences using Keras/TensorFlow in R. Handled day-of-week and previous-day autocorrelation effects via rigorous PACF analysis.
+* **LightGBM & Parallelization:** Engineered rolling-window time series features (1d/7d lags) using `dplyr` and `lubridate`. Extracted multiplicative seasonalities using `imputeTS`.
+* **Compute Optimization:** Sped up computation bottlenecks by implementing multicore parallelization using the `doParallel` and `foreach` packages, generating isolated time-series models for 50+ item categories concurrently.
+
+## PROJECT: Relational Database Architecture (Q&M Dental)
+
+Designed and implemented a comprehensive scheduling and inventory database for Singapore's largest private dental group.
+
+* **Data Modeling:** Translated complex business requirements into a structured Entity Relationship Model (ERM), resolving specific cardinalities for personnel (dentists, receptionists), specialized services, and clinical inventory.
+* **Logical Design:** Normalized schema up to Third Normal Form (3NF) to eliminate transitive and partial dependencies.
+* **Implementation:** Deployed robust MySQL schemas enforcing tight referential integrity via cascading foreign keys, enabling real-time multi-branch room and equipment scheduling.
+
+## EDUCATION
+
+**National University of Singapore (NUS)**
+Master of Computing — Artificial Intelligence Specialisation
+January 2025 – June 2027 | Singapore
+cGPA: 4.75 / 5.0
+
+**Singapore Management University (SMU)**
+Bachelor of Science in Economics, Data Science & Analytics
+August 2019 – May 2023 | Singapore
+Honours: Magna cum laude | GPA: 3.71 / 4.0
+Dean's List — School of Economics
+
+**Singapore Polytechnic**
+Diploma in Banking and Finance
+April 2013 – April 2016 | Singapore
+GPA: 3.52 / 4.0
+
+## WORK EXPERIENCE
+
+**PricewaterhouseCoopers (PwC) — Senior Data Scientist**
+January 2025 – Present | Singapore
+
+* Led development of Agentic Graph RAG solutions using LangChain, LlamaIndex, and PyTesseract, generating US$1.2M in revenue.
+* Developed and custom-trained lightweight U-Net architecture, improving accuracy by 10% in image-based document processing tasks.
+* Designed hyperparameter-tuned splitting strategies pre-embedding, improving splitting accuracy by 20% over base chunking strategies in vector database retrieval pipelines.
+
+**PricewaterhouseCoopers (PwC) — Data Scientist**
+June 2023 – January 2025 | Singapore
+
+* Developed time-series models for inventory management using ARIMAX and decision tree boosting models (LightGBM), reducing MAPE by 20%.
+* Refactored RAG pipelines with `asyncio` and multiprocessing, reducing runtime by 80% and streamlining performance bottlenecks.
+* Built automated web scraping and data mining pipelines with Selenium, SQL, and factor analysis, enabling market mapping and whitespace identification.
+
+**Diners Club — Data Analyst**
+January 2023 – June 2023 | Singapore
+
+* Deployed automation watchers for data crawling, tidying, ingestion, and report generation, saving 30 minutes daily.
+* Developed and maintained complex PostgreSQL/MySQL queries to support business stakeholders.
+* Deployed Cron Jobs for automated report generation.
+* Streamlined processes by redefining logic from legacy systems to improve data quality and optimize query performance.
+
+## AWARDS & CERTIFICATIONS
+
+* PwC Spot Award (2024) — Top Performer in Division
+* IMDA Singapore Digital Scholarship (Postgraduate) — Artificial Intelligence
+* AWS Certified Machine Learning — Specialty
+* Singapore Management University — School of Economics Dean's List
+
+## INTERESTS & PASSIONS
+
+Will is deeply passionate about the intersection of AI research and real-world engineering. He enjoys building end-to-end ML systems, from data pipelines to model deployment. He is particularly interested in LLMs, RLHF, agentic systems, RAG architectures, and probabilistic graphical models. He follows the latest developments in the AI space closely and enjoys experimenting with cutting-edge techniques on personal projects. Will is also proud to be an IMDA scholar contributing to Singapore's AI ecosystem.
+
+## WHAT MAKES WILL UNIQUE
+
+* Rare combination of strong theoretical ML foundations (NUS Master's in AI, SMU Economics/Data Science) and hands-on production engineering experience (PwC, Diners Club).
+* Has generated measurable business impact: US$1.2M revenue from Agentic RAG solutions, 80% runtime reduction through async refactoring, 20% MAPE reduction in forecasting.
+* Built a real-time RLHF fine-tuning pipeline from scratch — including Kafka streaming, DPO training loop, LoRA adapter management, and a live Streamlit monitoring UI — as a personal portfolio project, showcasing deep understanding of LLM alignment techniques.
+* AWS Certified Machine Learning Specialist.
+* IMDA Postgraduate AI Scholar — recognized by Singapore's national digital agency.
+* Comfortable operating at every layer of the ML stack: data engineering, model training, API development, frontend, and MLOps.

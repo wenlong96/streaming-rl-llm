@@ -1,4 +1,18 @@
-.venv
-__pycache__
-.git
+# Security
+.streamlit/secrets.toml
 .env
+.git
+
+# Performance (keep the image slim)
+.venv/
+__pycache__/
+*.pyc
+
+# Local Data
+chroma_db/
+resume.pdf
+will_context.txt
+projects.html
+how_to_start_local.txt
+start_willi.bat
+start_redpanda.sh
