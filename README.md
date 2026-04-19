@@ -1,6 +1,6 @@
 # WiLLi — Will's AI Clone with Real-Time RLHF
 
-> A living AI clone trained on Will's life, story, and personality — with a real-time reinforcement learning pipeline that improves the model in real time based on direct feedback.
+> A living AI clone trained on Will's life, story, and personality, with a real-time reinforcement learning pipeline that improves the model in real time based on direct feedback.
 
 **Live:** [askwilli.dev](https://askwilli.dev)
 
@@ -8,9 +8,9 @@
 
 ## What is WiLLi?
 
-WiLLi is not a portfolio chatbot. It is a living archive of who Will is — built to let people actually know him, not just read a summary of his credentials.
+WiLLi is a living archive of who Will is.
 
-Chat with a model that speaks as Will. Explore the real-time learning pipeline that powers it. And if it sparks something, build your own.
+Chat with a model that speaks as Will. Explore the real-time learning pipeline that powers it.
 
 What makes it different from a standard chatbot is the **live RLHF pipeline** baked in. Every time Will logs in as admin and corrects a response, that feedback streams to a Kafka broker, gets consumed by a training loop, and fine-tunes the model via **DPO (Direct Preference Optimization)** — all while the app is running.
 
@@ -152,7 +152,7 @@ Or use `start_willi_lite.bat` for a lighter run without the training loop.
 
 ## Why This Project?
 
-WiLLi is a personal project built to share Will's life and story — and to inspire others to build their own. There is no better way to express yourself than to make something that thinks and speaks like you.
+WiLLi is a personal project built to share Will's life and story, and to inspire others to build their own. There is no better way to express yourself than to make something that thinks and speaks like you.
 
 Technically, it demonstrates end-to-end ML engineering: data collection, streaming infrastructure, online fine-tuning, and deployment. The full production RLHF feedback loop, built at personal project scale.
 
