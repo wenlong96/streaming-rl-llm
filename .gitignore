@@ -18,3 +18,8 @@ __pycache__/
 how_to_start_local.txt
 start_willi.bat
 start_redpanda.sh.env 
+
+start_willi_lite.bat
+start_willi.bat
+changes.txt
+*.bat

@@ -108,7 +108,51 @@ with tab1:
             {"role": "assistant", "content": intro_1, "avatar": willi_avatar},
             {"role": "assistant", "content": intro_2, "avatar": willi_avatar}
         ]
-        
+
+    if "visit_notified" not in st.session_state:
+        st.session_state.visit_notified = True
+        try:
+            token = st.secrets.get("TELEGRAM_TOKEN") or os.environ.get("TELEGRAM_TOKEN")
+            chat_id = st.secrets.get("TELEGRAM_CHAT_ID") or os.environ.get("TELEGRAM_CHAT_ID")
+            if token and chat_id:
+                requests.post(
+                    f"https://api.telegram.org/bot{token}/sendMessage",
+                    json={"chat_id": chat_id, "text": "👀 Someone just visited askwilli.dev!"},
+                    timeout=3
+                )
+        except Exception:
+            pass
+
+    st.info(
+        "WiLLi runs on my local machine via Cloudflare Tunnel — if it's slow or unresponsive, "
+        "try refreshing in a minute. Or leave your contact and I'll personally invite you to try the live demo!\n\n"
+        "WhatsApp: +65 9843 7531  |  Telegram: @wlhere  |  wenlonglim96@hotmail.com"
+    )
+
+
+    with st.expander("Leave your contact — I'll reach out to you!", expanded=False):
+        user_contact = st.text_area(
+            "Your contact details (WhatsApp, Telegram, email — anything works):",
+            placeholder="e.g. WhatsApp: +65 9123 4567 / Telegram: @yourhandle / email@example.com",
+            height=80
+        )
+        if st.button("Send"):
+            if user_contact.strip():
+                try:
+                    token = st.secrets.get("TELEGRAM_TOKEN") or os.environ.get("TELEGRAM_TOKEN")
+                    chat_id = st.secrets.get("TELEGRAM_CHAT_ID") or os.environ.get("TELEGRAM_CHAT_ID")
+                    if token and chat_id:
+                        requests.post(
+                            f"https://api.telegram.org/bot{token}/sendMessage",
+                            json={"chat_id": chat_id, "text": f"Contact request!\n\n{user_contact}"},
+                            timeout=3
+                        )
+                except Exception:
+                    pass
+                st.success("Got it! Will will reach out to you soon 😊")
+            else:
+                st.warning("Please enter your contact details first.")
+
     # Display chat history
     chat_container = st.container(height=500)
     with chat_container:
@@ -116,6 +160,8 @@ with tab1:
             current_avatar = message.get("avatar") if message["role"] == "assistant" else None
             with st.chat_message(message["role"], avatar=current_avatar):
                 st.markdown(message["content"])
+
+
 
     # User Input
     chat_placeholder = "Ask me about my career..." if mode == "Public" else "ENTER PROMPT FOR DPO OPTIMIZATION..."
