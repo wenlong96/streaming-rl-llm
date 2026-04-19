@@ -1,42 +1,45 @@
 # WiLLi — Will's AI Clone with Real-Time RLHF
 
-> A fine-tuned LLM persona trained to represent Will's voice, experience, and personality — with a live reinforcement learning feedback loop that improves the model in real time based on user interactions.
+> A living AI clone trained on Will's life, story, and personality — with a real-time reinforcement learning pipeline that improves the model in real time based on direct feedback.
 
-**Live Demo:** [askwilli.dev](https://askwilli.dev)
+**Live:** [askwilli.dev](https://askwilli.dev)
 
 ---
 
 ## What is WiLLi?
 
-WiLLi is an AI clone of Will — a conversational agent that answers questions about his life, career, projects, and technical skills. What makes it different from a standard chatbot is the **live RLHF (Reinforcement Learning from Human Feedback) pipeline** baked in.
+WiLLi is not a portfolio chatbot. It is a living archive of who Will is — built to let people actually know him, not just read a summary of his credentials.
 
-Every time Will logs in as admin and rates or corrects a response, that feedback is streamed to a Kafka message broker, consumed by a training loop, and used to fine-tune the model via **DPO (Direct Preference Optimization)** — all while the app is running.
+Chat with a model that speaks as Will. Explore the real-time learning pipeline that powers it. And if it sparks something, build your own.
+
+What makes it different from a standard chatbot is the **live RLHF pipeline** baked in. Every time Will logs in as admin and corrects a response, that feedback streams to a Kafka broker, gets consumed by a training loop, and fine-tunes the model via **DPO (Direct Preference Optimization)** — all while the app is running.
 
 ---
 
 ## Architecture
 
 ```
-User → Streamlit UI → FastAPI Backend → Qwen 2.5 3B (LoRA adapter)
-                                    ↓
-                          Admin correction/feedback
-                                    ↓
-                        Redpanda (Kafka) message broker
-                                    ↓
-                        train_loop.py (DPO fine-tuning)
-                                    ↓
-                        willi_adapter/ (updated LoRA weights)
+User → React Frontend (port 3000) → FastAPI Backend (port 8000) → Qwen 2.5 3B (LoRA adapter)
+                                                ↓
+                                    Admin correction via sidebar
+                                                ↓
+                                  Redpanda (Kafka) message broker
+                                                ↓
+                                  train_loop.py (DPO fine-tuning)
+                                                ↓
+                                  willi_adapter/ (updated LoRA weights)
 ```
 
 ### Stack
+
 | Component | Technology |
-|-----------|-----------|
-| Frontend | Streamlit |
+|-----------|------------|
+| Frontend | React 18 (single `index.html`, no build step) |
 | Backend API | FastAPI + Uvicorn |
-| LLM | Qwen 2.5 3B Instruct (4-bit quantized) |
-| Fine-tuning | LoRA + DPO via TRL/PEFT |
-| RAG | ChromaDB + LangChain + sentence-transformers |
-| Message Broker | Redpanda (Kafka-compatible) via Docker |
+| LLM | Qwen 2.5 3B Instruct (4-bit NF4 quantized) |
+| Fine-tuning | LoRA + DPO via TRL / PEFT |
+| RAG | ChromaDB + sentence-transformers |
+| Message Broker | Redpanda (Kafka-compatible) via Docker/WSL |
 | Tunnel | Cloudflare Tunnel → askwilli.dev |
 | Training Hardware | Local RTX GPU (CUDA) |
 
@@ -44,12 +47,14 @@ User → Streamlit UI → FastAPI Backend → Qwen 2.5 3B (LoRA adapter)
 
 ## Features
 
-- **Chat with WiLLi** — Ask anything about Will's life, career, projects, or skills
-- **RAG-powered responses** — Answers grounded in Will's actual resume and context documents
-- **Live DPO training** — Admin can correct responses and push them directly into training
-- **Streaming responses** — Token-by-token output for a natural chat experience
-- **Training metrics dashboard** — Real-time view of loss, grad norm, reward margin per training step
-- **Architecture + Projects + Resume tabs** — Portfolio embedded directly in the app
+- **Home page** — Intro to WiLLi and Will's story
+- **Chat with WiLLi** — Ask anything about Will's life, hobbies, career, or projects
+- **RAG-powered responses** — Grounded in Will's actual context documents
+- **Live DPO training** — Admin corrects responses and pushes them directly into training
+- **Streaming responses** — Token-by-token output via ReadableStream
+- **Architecture tab** — Interactive graph of the full pipeline, zoom into each component
+- **Projects tab** — Horizontal cinematic scroll through Will's projects
+- **Admin sidebar** — Real-time training metrics, logs, and RLHF controls in the chat view
 
 ---
 
@@ -57,21 +62,19 @@ User → Streamlit UI → FastAPI Backend → Qwen 2.5 3B (LoRA adapter)
 
 ```
 streaming-rl-llm/
-├── app.py                    # Streamlit frontend
-├── docker-compose.yml        # Redpanda broker
-├── start_willi.bat           # Windows startup script
-├── start_redpanda.sh         # WSL startup script
+├── index.html                # React frontend (single file, all tabs)
+├── docker-compose.yml        # Redpanda broker config
+├── start_willi.bat           # Full startup (with training loop)
+├── start_willi_lite.bat      # Lite startup (no training loop)
+├── start_redpanda.sh         # WSL Redpanda startup script
 ├── rlhf_service/
 │   ├── api.py                # FastAPI backend
 │   ├── train_loop.py         # DPO training consumer
+│   └── Dockerfile            # GPU training container
+├── rag_service/
 │   └── ingest.py             # ChromaDB ingestion
-├── rag_service/              # RAG retrieval logic
-├── stream_service/
-│   └── producer.py           # Kafka feedback producer
-├── will_context.txt          # Will's background/context
-├── resume.pdf                # Resume for RAG + display
-├── architecture.html         # Architecture diagram tab
-└── projects.html             # Projects showcase tab
+└── stream_service/
+    └── producer.py           # Kafka feedback producer
 ```
 
 ---
@@ -80,13 +83,13 @@ streaming-rl-llm/
 
 1. User asks WiLLi a question
 2. WiLLi responds using the fine-tuned Qwen model + RAG retrieval
-3. Admin logs in and either:
-   - Clicks **"Log as Preferred Response"** — marks it as a positive example
-   - Types a correction and clicks **"Push to Redpanda for Training"** — creates a DPO pair (chosen vs rejected)
-4. The feedback is serialized and published to the `rlhf-feedback` Kafka topic
-5. `train_loop.py` consumes the message and runs a DPO training step
-6. The LoRA adapter weights are updated and saved to `willi_adapter/`
-7. The next response already reflects the correction
+3. Admin logs in via the admin sidebar and either:
+   - Clicks **"Log last response as preferred"** — positive DPO signal
+   - Types a correction and clicks **"Push to Redpanda"** — creates a (chosen, rejected) DPO pair
+4. Feedback is serialized and published to the `rlhf-feedback` Kafka topic
+5. `train_loop.py` consumes the message and runs a DPO gradient step
+6. LoRA adapter weights are updated and saved to `willi_adapter/`
+7. Next response already reflects the correction
 
 ---
 
@@ -109,55 +112,53 @@ cd streaming-rl-llm
 ```
 KAFKA_BROKER=<your-wsl-ip>:9092
 HF_TOKEN=<your-huggingface-token>
+TELEGRAM_TOKEN=<optional>
+TELEGRAM_CHAT_ID=<optional>
+ADMIN_PASSWORD=<your-password>
 ```
 
-### 3. Create `.streamlit/secrets.toml`
-```toml
-ADMIN_PASSWORD = "yourpassword"
-```
-
-### 4. Install dependencies
+### 3. Install dependencies
 ```bash
 pip install -r requirements.txt
 ```
 
-### 5. Ingest RAG context
+### 4. Add context documents
+Place your context file and resume in the project root, then ingest:
 ```bash
 python rag_service/ingest.py
 ```
 
-### 6. Start everything
+### 5. Start everything
 Double-click `start_willi.bat` — it will:
+- Wait for WSL to initialize
 - Start Redpanda via WSL/Docker
 - Launch FastAPI on port 8000
-- Launch Streamlit on port 8501
+- Serve the React frontend on port 3000
 - Start the Cloudflare tunnel
-- Start the training loop
+- Start the DPO training loop
 
----
-
-## AWS Deployment
-
-See [deployment guide](docs/aws_deploy.md) *(coming soon)* for running on a GPU EC2 instance (g4dn.xlarge recommended).
+Or use `start_willi_lite.bat` for a lighter run without the training loop.
 
 ---
 
 ## Secrets & Security
 
-- `.env` and `.streamlit/secrets.toml` are gitignored — never committed
+- `.env` is gitignored — never committed
 - Redpanda runs locally and is not exposed to the internet
-- Admin panel is password-protected
+- Admin panel is password-protected via sessionStorage
 - Cloudflare Tunnel handles SSL and DDoS protection
 
 ---
 
 ## Why This Project?
 
-This project demonstrates end-to-end ML engineering — not just training a model offline, but building the **full production feedback loop**: data collection, streaming infrastructure, online fine-tuning, and deployment. It's the kind of system that powers real RLHF pipelines at companies like OpenAI and Anthropic, built at portfolio scale.
+WiLLi is a personal project built to share Will's life and story — and to inspire others to build their own. There is no better way to express yourself than to make something that thinks and speaks like you.
+
+Technically, it demonstrates end-to-end ML engineering: data collection, streaming infrastructure, online fine-tuning, and deployment. The full production RLHF feedback loop, built at personal project scale.
 
 ---
 
 ## Author
 
-**Will** — Data Scientist & ML Engineer  
+**Will** — Data Scientist
 [askwilli.dev](https://askwilli.dev) · [GitHub](https://github.com/wenlong96)
