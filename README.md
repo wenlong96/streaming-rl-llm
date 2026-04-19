@@ -8,7 +8,7 @@
 
 ## What is WiLLi?
 
-WiLLi is an AI clone of Will — a conversational agent that answers questions about his career, projects, and technical skills. What makes it different from a standard chatbot is the **live RLHF (Reinforcement Learning from Human Feedback) pipeline** baked in.
+WiLLi is an AI clone of Will — a conversational agent that answers questions about his life, career, projects, and technical skills. What makes it different from a standard chatbot is the **live RLHF (Reinforcement Learning from Human Feedback) pipeline** baked in.
 
 Every time Will logs in as admin and rates or corrects a response, that feedback is streamed to a Kafka message broker, consumed by a training loop, and used to fine-tune the model via **DPO (Direct Preference Optimization)** — all while the app is running.
 
@@ -44,7 +44,7 @@ User → Streamlit UI → FastAPI Backend → Qwen 2.5 3B (LoRA adapter)
 
 ## Features
 
-- **Chat with WiLLi** — Ask anything about Will's career, projects, or skills
+- **Chat with WiLLi** — Ask anything about Will's life, career, projects, or skills
 - **RAG-powered responses** — Answers grounded in Will's actual resume and context documents
 - **Live DPO training** — Admin can correct responses and push them directly into training
 - **Streaming responses** — Token-by-token output for a natural chat experience

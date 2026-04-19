@@ -1,0 +1,1159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>WiLLi</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📔</text></svg>">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --cream:#fffdf7;--cream-2:#fdf9ee;--cream-3:#f7f1e0;
+  --border:#ede5cc;--border-2:#e0d4b4;
+  --gold:#c8a84b;--gold-light:#f5edd4;
+  --text:#1a1208;--text-2:#4a3e28;--text-3:#8a7a5a;--text-4:#b8a878;
+  --display:'Space Grotesk',sans-serif;--sans:'DM Sans',sans-serif;--mono:'DM Mono',monospace;
+  --nav-h:58px;
+}
+html{height:100%}
+body{min-height:100%;background:var(--cream);color:var(--text);font-family:var(--sans);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:200;height:var(--nav-h);background:rgba(255,253,247,0.94);backdrop-filter:blur(10px);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 2rem;justify-content:space-between}
+.nb{font-family:var(--display);font-size:1.1rem;font-weight:500;color:var(--text);cursor:pointer;display:flex;align-items:center;gap:0.45rem}
+
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.5}}
+.nl{display:flex;align-items:center;gap:0.1rem}
+.nlk{font-size:0.775rem;font-weight:400;color:var(--text-3);padding:0.38rem 0.78rem;border-radius:5px;cursor:pointer;transition:all 0.15s;border:1px solid transparent;background:none;font-family:var(--sans)}
+.nlk:hover{color:var(--text-2);background:var(--cream-3)}
+.nlk.active{color:var(--text);background:var(--gold-light);border-color:var(--border-2);font-weight:500}
+
+/* PAGE */
+.page{min-height:100vh;padding-top:var(--nav-h)}
+@keyframes fi{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pageFromRight{from{opacity:0;transform:translateX(32px)}to{opacity:1;transform:translateX(0)}}
+@keyframes pageFromLeft{from{opacity:0;transform:translateX(-32px)}to{opacity:1;transform:translateX(0)}}
+
+/* CHAT */
+.cl{max-width:720px;margin:0 auto;padding:2rem 1.5rem 0;display:flex;flex-direction:column;height:calc(100vh - var(--nav-h))}
+.ch{padding-bottom:1rem;border-bottom:1px solid var(--border)}
+.ey{font-size:0.62rem;letter-spacing:0.12em;color:var(--text-4);font-family:var(--mono);margin-bottom:0.3rem;text-transform:uppercase}
+.ch h1{font-family:var(--display);font-size:1.3rem;font-weight:500;color:var(--text);}
+.is{margin:0.85rem 0 0.4rem;padding:0.7rem 0.95rem;background:var(--cream-3);border:1px solid var(--border);border-radius:6px;font-size:0.735rem;color:var(--text-3);line-height:1.65}
+.is a{color:var(--text-2);text-decoration:none;border-bottom:1px solid var(--border-2)}
+.ct{display:inline-flex;align-items:center;gap:0.35rem;font-size:0.71rem;color:var(--gold);cursor:pointer;background:none;border:none;font-family:var(--sans);padding:0.3rem 0;transition:opacity 0.15s;margin-bottom:0.4rem}
+.ct:hover{opacity:0.7}
+.cp{background:var(--cream-2);border:1px solid var(--border);border-radius:8px;padding:0.95rem;margin-bottom:0.6rem}
+.cp label{display:block;font-size:0.7rem;color:var(--text-3);margin-bottom:0.45rem}
+.cp textarea{width:100%;background:var(--cream);border:1px solid var(--border);border-radius:5px;padding:0.55rem 0.7rem;font-size:0.77rem;font-family:var(--sans);color:var(--text);resize:none;outline:none;height:62px;transition:border-color 0.15s}
+.cp textarea:focus{border-color:var(--border-2)}
+.cp button{margin-top:0.5rem;background:var(--text);color:var(--cream);border:none;border-radius:5px;padding:0.42rem 0.95rem;font-size:0.73rem;font-family:var(--sans);cursor:pointer}
+.ma{flex:1;overflow-y:auto;padding:0.9rem 0;display:flex;flex-direction:column;gap:0.8rem;scroll-behavior:smooth}
+.ma::-webkit-scrollbar{width:3px}
+.ma::-webkit-scrollbar-thumb{background:var(--border-2);border-radius:2px}
+.msg{display:flex;align-items:flex-start;gap:0.6rem;animation:mi 0.2s ease}
+@keyframes mi{from{opacity:0;transform:translateY(3px)}to{opacity:1}}
+.msg.user{flex-direction:row-reverse}
+.av{width:27px;height:27px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.72rem;flex-shrink:0;border:1px solid var(--border);background:var(--cream-2)}
+.msg.user .av{background:var(--cream);color:var(--text);font-size:0.62rem;font-weight:500;border-color:var(--border)}
+.bub{max-width:80%;padding:0.68rem 0.88rem;font-size:0.79rem;line-height:1.7;color:var(--text)}
+.msg.assistant .bub{background:var(--cream-2);border:1px solid var(--border);border-radius:3px 10px 10px 10px}
+.msg.user .bub{background:var(--cream);color:var(--text);border-radius:10px 3px 10px 10px;font-size:0.77rem;border:1px solid var(--border)}
+.td{display:flex;gap:4px;padding:0.18rem 0}
+.td span{width:5px;height:5px;border-radius:50%;background:var(--border-2);animation:tda 1.2s infinite}
+.td span:nth-child(2){animation-delay:.2s}
+.td span:nth-child(3){animation-delay:.4s}
+@keyframes tda{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-5px)}}
+.ia{padding:0.8rem 0 1.5rem;border-top:1px solid var(--border);display:flex;gap:0.5rem;align-items:flex-end}
+.ia textarea{flex:1;background:var(--cream-2);border:1px solid var(--border);border-radius:8px;padding:0.62rem 0.82rem;font-size:0.775rem;font-family:var(--sans);color:var(--text);resize:none;outline:none;min-height:40px;max-height:110px;line-height:1.5;transition:border-color 0.15s}
+.ia textarea:focus{border-color:var(--border-2);background:var(--cream)}
+.ia textarea::placeholder{color:var(--text-4)}
+.sb{width:38px;height:38px;border-radius:8px;background:var(--gold);color:var(--cream);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:opacity 0.15s;flex-shrink:0}
+.sb:hover{opacity:0.85}
+.sb:disabled{opacity:0.35;cursor:not-allowed}
+
+/* ── CINEMATIC STICKY SCROLL ── */
+/* Each scene block is tall (scroll range) with a sticky inner panel */
+.scene-block{position:relative;height:280vh}
+.scene-sticky{
+  position:sticky;
+  top:var(--nav-h);
+  height:calc(100vh - var(--nav-h));
+  overflow:hidden;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.scene-inner{
+  position:relative;
+  width:100%;
+  height:100%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.scene-bg-layer{position:absolute;inset:0;transition:background 0s}
+.scene-grain{
+  position:absolute;inset:0;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  opacity:0.5;pointer-events:none;
+}
+.scene-content{position:relative;z-index:2;max-width:900px;width:100%;padding:0 3.5rem;will-change:transform,opacity}
+.sc-label{font-family:var(--mono);font-size:0.6rem;letter-spacing:0.25em;text-transform:uppercase;margin-bottom:1rem;opacity:0.65}
+.sc-title{font-family:var(--display);font-size:clamp(2.5rem,5.5vw,4.8rem);font-weight:500;line-height:1.1;letter-spacing:-0.02em;margin-bottom:1.5rem}
+.sc-title em{}
+.sc-div{width:40px;height:1px;margin:1.5rem 0;opacity:0.45}
+.sc-body{font-size:0.975rem;line-height:1.85;max-width:540px;opacity:0.72}
+.sc-specs{margin-top:1rem;display:flex;flex-direction:column;gap:0.5rem}
+.sc-spec{display:flex;align-items:flex-start;gap:0.6rem;font-size:0.8rem;line-height:1.5;opacity:0.7}
+.sc-dot{width:4px;height:4px;border-radius:50%;flex-shrink:0;margin-top:0.45rem;opacity:0.6}
+.sc-pills{display:flex;flex-wrap:wrap;gap:0.5rem;margin-top:1.25rem}
+.sc-pill{font-family:var(--mono);font-size:0.65rem;padding:0.28rem 0.65rem;border-radius:20px;border:1px solid currentColor;opacity:0.65;letter-spacing:0.03em}
+.sc-link{display:inline-flex;align-items:center;gap:0.4rem;font-size:0.75rem;font-family:var(--sans);margin-top:1.5rem;text-decoration:none;padding:0.5rem 1.1rem;border-radius:5px;border:1px solid currentColor;opacity:0.65;transition:opacity 0.2s}
+.sc-link:hover{opacity:1}
+.sc-num{font-family:var(--display);font-size:clamp(5rem,14vw,11rem);font-weight:600;line-height:1;opacity:0.055;position:absolute;right:2.5rem;top:50%;transform:translateY(-50%);letter-spacing:-0.04em;user-select:none;}
+.sc-counter{position:absolute;bottom:1.5rem;right:2rem;font-family:var(--mono);font-size:0.6rem;letter-spacing:0.15em;opacity:0.3}
+.sc-hint{position:absolute;bottom:2rem;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:0.4rem}
+.sc-hint span{font-family:var(--mono);font-size:0.58rem;letter-spacing:0.15em;opacity:0.4;text-transform:uppercase}
+.sc-hint svg{animation:shbounce 2s infinite}
+@keyframes shbounce{0%,100%{transform:translateY(0)}50%{transform:translateY(5px)}}
+@keyframes shbounceH{0%,100%{transform:translateX(0)}50%{transform:translateX(5px)}}
+
+/* RESUME */
+.res-hero{height:38vh;display:flex;align-items:center;justify-content:center;flex-direction:column;text-align:center;background:var(--text);color:var(--cream);position:relative;overflow:hidden}
+.res-hero::before{content:'CV';position:absolute;font-family:var(--display);font-size:22rem;font-weight:600;opacity:0.04;letter-spacing:-0.04em;pointer-events:none;line-height:1}
+.res-hero .ey{color:var(--text-4)}
+.res-hero h1{font-family:var(--display);font-size:2.5rem;font-weight:500;color:var(--cream);margin-top:0.5rem}
+.res-body{padding:2rem;max-width:900px;width:100%;margin:0 auto}
+.res-bar{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;padding-bottom:1rem;border-bottom:1px solid var(--border)}
+.dlb{display:inline-flex;align-items:center;gap:0.4rem;background:var(--text);color:var(--cream);border:none;border-radius:6px;padding:0.52rem 1.05rem;font-size:0.73rem;font-family:var(--sans);font-weight:500;cursor:pointer;text-decoration:none;transition:opacity 0.15s}
+.dlb:hover{opacity:0.8}
+.pdf-f{border:1px solid var(--border);border-radius:8px;overflow:hidden;height:calc(62vh - 80px)}
+.pdf-f iframe{width:100%;height:100%;border:none}
+
+/* ADMIN */
+.aw{max-width:600px;margin:0 auto;padding:2rem 1.5rem}
+.at{border-bottom:1px solid var(--border);padding-bottom:1rem;margin-bottom:1.5rem}
+.at h1{font-family:var(--display);font-size:1.25rem;font-weight:500;color:var(--text)}
+.at p{font-size:0.73rem;color:var(--text-3);margin-top:0.25rem}
+.sp{display:inline-flex;align-items:center;gap:0.4rem;padding:0.28rem 0.72rem;border-radius:20px;font-size:0.69rem;font-weight:500;margin-bottom:1.2rem}
+.sp.on{background:#f0fdf4;border:1px solid #bbf7d0;color:#15803d}
+.dg{width:6px;height:6px;border-radius:50%;background:#22c55e;animation:pulse 1.5s infinite}
+.card{background:var(--cream-2);border:1px solid var(--border);border-radius:10px;padding:1.2rem;margin-bottom:1rem}
+.card h3{font-family:var(--display);font-size:0.92rem;font-weight:500;color:var(--text);margin-bottom:0.2rem}
+.card .cd{font-size:0.7rem;color:var(--text-3);margin-bottom:0.95rem}
+.fl{display:block;font-size:0.69rem;color:var(--text-3);margin-bottom:0.38rem;font-weight:500}
+.fi{width:100%;background:var(--cream);border:1px solid var(--border);border-radius:6px;padding:0.58rem 0.78rem;font-size:0.77rem;font-family:var(--sans);color:var(--text);outline:none;transition:border-color 0.15s;margin-bottom:0.72rem}
+.fi:focus{border-color:var(--border-2)}
+.fi::placeholder{color:var(--text-4)}
+.bp{background:var(--text);color:var(--cream);border:none;border-radius:6px;padding:0.52rem 1.05rem;font-size:0.73rem;font-family:var(--sans);font-weight:500;cursor:pointer;transition:opacity 0.15s;width:100%}
+.bp:hover{opacity:0.8}
+.bpos{background:#f0fdf4;color:#15803d;border:1px solid #bbf7d0;border-radius:6px;padding:0.5rem 1rem;font-size:0.71rem;font-family:var(--sans);cursor:pointer;width:100%;margin-bottom:0.6rem}
+.bpos:hover{background:#dcfce7}
+.bs{background:var(--cream-3);color:var(--text-2);border:1px solid var(--border);border-radius:6px;padding:0.48rem 1rem;font-size:0.71rem;font-family:var(--sans);cursor:pointer}
+.bs:hover{background:var(--gold-light)}
+.mg{display:grid;grid-template-columns:repeat(3,1fr);gap:0.5rem;margin-top:0.7rem}
+.mc{background:var(--cream);border:1px solid var(--border);border-radius:6px;padding:0.62rem 0.72rem}
+.ml{font-size:0.58rem;color:var(--text-4);font-family:var(--mono);margin-bottom:0.22rem;text-transform:uppercase;letter-spacing:0.05em}
+.mv{font-size:0.95rem;font-weight:500;color:var(--text);font-family:var(--mono)}
+.lb{background:var(--cream);border:1px solid var(--border);border-radius:6px;padding:0.68rem;font-family:var(--mono);font-size:0.67rem;color:var(--text-3);max-height:96px;overflow-y:auto;line-height:1.7;white-space:pre-wrap}
+.toast{font-size:0.7rem;border-radius:5px;padding:0.42rem 0.72rem;margin-top:0.55rem}
+.toast.ok{background:#f0fdf4;border:1px solid #bbf7d0;color:#15803d}
+.toast.err{background:#fef2f2;border:1px solid #fecaca;color:#dc2626}
+.em{font-size:0.7rem;color:#dc2626;margin-top:0.38rem}
+.ll{background:none;border:none;color:var(--text-4);font-size:0.7rem;font-family:var(--sans);cursor:pointer;padding:0;margin-top:0.6rem;text-decoration:underline;text-decoration-color:var(--border-2)}
+.ll:hover{color:var(--text-2)}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState, useEffect, useRef, useCallback } = React;
+const API = "https://askwilli.dev";
+const NAV_H = 58;
+
+// ── Router ───────────────────────────────────────────────────────────
+function useRoute() {
+  const [route, setRoute] = useState(location.hash.replace('#','') || '/home');
+  useEffect(() => {
+    const h = () => {
+      setRoute(location.hash.replace('#','') || '/chat');
+      window.scrollTo(0,0);
+    };
+    window.addEventListener('hashchange', h);
+    return () => window.removeEventListener('hashchange', h);
+  }, []);
+  return [route, r => { location.hash = r; }];
+}
+
+// ── Nav ──────────────────────────────────────────────────────────────
+function Nav({ route, nav }) {
+  const links = [['/home','Home'],['/chat','Chat'],['/architecture','Architecture'],['/projects','Projects'],['/admin','Admin']];
+  return (
+    <nav>
+      <div className="nb" onClick={() => nav('/home')}>
+        WiLLi
+      </div>
+      <div className="nl">
+        {links.map(([p,l]) => (
+          <button key={p} className={`nlk${route===p?' active':''}`} onClick={() => nav(p)}>{l}</button>
+        ))}
+      </div>
+    </nav>
+  );
+}
+
+// ── Home ─────────────────────────────────────────────────────────────
+function HomePage({ nav }) {
+  const [imgError, setImgError] = useState(false);
+
+  return (
+    <div style={{
+      minHeight:'100vh',
+      paddingTop:'var(--nav-h)',
+      background:'var(--cream)',
+      display:'flex',
+      flexDirection:'column',
+      alignItems:'center',
+      justifyContent:'center',
+      padding:'var(--nav-h) 2rem 4rem',
+      position:'relative',
+      overflow:'hidden',
+    }}>
+
+      {/* Decorative warm background text */}
+      <div style={{
+        position:'absolute',
+        top:'50%',left:'50%',
+        transform:'translate(-50%,-50%)',
+        fontFamily:'var(--display)',
+        fontSize:'clamp(12rem,28vw,22rem)',
+        fontWeight:700,
+        color:'var(--text)',
+        opacity:0.025,
+        userSelect:'none',
+        pointerEvents:'none',
+        letterSpacing:'-0.06em',
+        lineHeight:1,
+        whiteSpace:'nowrap',
+      }}>WiLLi</div>
+
+      {/* Thin decorative lines */}
+      <div style={{
+        position:'absolute',top:0,left:0,right:0,
+        height:'1px',background:'linear-gradient(90deg,transparent,var(--border-2),transparent)',
+        marginTop:'var(--nav-h)',
+      }}/>
+      <div style={{
+        position:'absolute',bottom:0,left:0,right:0,
+        height:'1px',background:'linear-gradient(90deg,transparent,var(--border-2),transparent)',
+      }}/>
+
+      {/* Main content */}
+      <div style={{
+        position:'relative',zIndex:1,
+        display:'flex',flexDirection:'column',
+        alignItems:'center',
+        textAlign:'center',
+        maxWidth:560,
+      }}>
+
+        {/* Photo */}
+        <div style={{
+          width:140,height:140,
+          borderRadius:'50%',
+          border:'2px solid var(--border-2)',
+          outline:'6px solid var(--cream-3)',
+          overflow:'hidden',
+          marginBottom:'2rem',
+          boxShadow:'0 8px 40px rgba(26,18,8,0.1)',
+          flexShrink:0,
+        }}>
+          {!imgError ? (
+            <img
+              src="site_photo.jfif"
+              alt="Will"
+              onError={() => setImgError(true)}
+              style={{width:'100%',height:'100%',objectFit:'cover'}}
+            />
+          ) : (
+            <div style={{
+              width:'100%',height:'100%',
+              background:'var(--cream-3)',
+              display:'flex',alignItems:'center',justifyContent:'center',
+              fontFamily:'var(--display)',fontSize:'2.5rem',fontWeight:700,
+              color:'var(--gold)',
+            }}>W</div>
+          )}
+        </div>
+
+        {/* Label */}
+        <div style={{
+          fontFamily:'var(--mono)',fontSize:'0.62rem',
+          letterSpacing:'0.2em',color:'var(--text-4)',
+          textTransform:'uppercase',marginBottom:'0.75rem',
+        }}>Will Lim Wen Long</div>
+
+        {/* Heading */}
+        <h1 style={{
+          fontFamily:'var(--display)',
+          fontSize:'clamp(2.4rem,6vw,4rem)',
+          fontWeight:700,
+          color:'var(--text)',
+          letterSpacing:'-0.03em',
+          lineHeight:1.1,
+          marginBottom:'0.5rem',
+        }}>Hi, This is WiLLi</h1>
+
+        {/* Gold divider */}
+        <div style={{
+          width:40,height:2,
+          background:'var(--gold)',
+          borderRadius:2,
+          margin:'1.25rem auto',
+          opacity:0.7,
+        }}/>
+
+        {/* Description */}
+        <p style={{
+          fontSize:'1rem',
+          lineHeight:1.85,
+          color:'var(--text-2)',
+          marginBottom:'1rem',
+          fontWeight:400,
+        }}>
+          WiLLi is a living archive of my journey.
+          <span style={{ display: 'block' }}>It is a digital piece of me trained on my life story.</span>
+        </p>
+        <p style={{
+          fontSize:'0.9rem',
+          lineHeight:1.85,
+          color:'var(--text-3)',
+          marginBottom:'2.5rem',
+        }}>
+          Chat with a model that speaks as me. Explore the real-time learning
+          pipeline that powers it. And, if it sparks something, I hope you build
+          your own. There is no better way to express yourself than to make something
+          that thinks and speaks like you.
+        </p>
+
+        {/* CTA */}
+        <button
+          onClick={() => nav('/chat')}
+          style={{
+            display:'inline-flex',alignItems:'center',gap:'0.6rem',
+            background:'var(--text)',color:'var(--cream)',
+            border:'none',borderRadius:8,
+            padding:'0.85rem 2rem',
+            fontFamily:'var(--display)',fontSize:'0.95rem',fontWeight:600,
+            cursor:'pointer',
+            letterSpacing:'-0.01em',
+            transition:'all 0.2s',
+            boxShadow:'0 4px 20px rgba(26,18,8,0.15)',
+            marginBottom:'3rem',
+          }}
+          onMouseEnter={e=>{e.currentTarget.style.transform='translateY(-2px)';e.currentTarget.style.boxShadow='0 8px 30px rgba(26,18,8,0.2)';}}
+          onMouseLeave={e=>{e.currentTarget.style.transform='translateY(0)';e.currentTarget.style.boxShadow='0 4px 20px rgba(26,18,8,0.15)';}}
+        >
+          Talk to WiLLi
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+            <line x1="5" y1="12" x2="19" y2="12"/>
+            <polyline points="12 5 19 12 12 19"/>
+          </svg>
+        </button>
+
+        {/* Secondary links */}
+        <div style={{
+          display:'flex',alignItems:'center',gap:'0.5rem',
+          fontFamily:'var(--mono)',fontSize:'0.62rem',
+          color:'var(--text-4)',letterSpacing:'0.08em',
+        }}>
+          <button onClick={()=>nav('/architecture')} style={{background:'none',border:'none',cursor:'pointer',fontFamily:'var(--mono)',fontSize:'0.62rem',color:'var(--text-4)',letterSpacing:'0.08em',padding:'0.2rem 0.4rem',borderRadius:4,transition:'color 0.15s'}}
+            onMouseEnter={e=>e.currentTarget.style.color='var(--text-2)'}
+            onMouseLeave={e=>e.currentTarget.style.color='var(--text-4)'}
+          >Architecture</button>
+          <span style={{opacity:0.4}}>·</span>
+          <button onClick={()=>nav('/projects')} style={{background:'none',border:'none',cursor:'pointer',fontFamily:'var(--mono)',fontSize:'0.62rem',color:'var(--text-4)',letterSpacing:'0.08em',padding:'0.2rem 0.4rem',borderRadius:4,transition:'color 0.15s'}}
+            onMouseEnter={e=>e.currentTarget.style.color='var(--text-2)'}
+            onMouseLeave={e=>e.currentTarget.style.color='var(--text-4)'}
+          >Projects</button>
+          <span style={{opacity:0.4}}>·</span>
+          <button onClick={()=>nav('/admin')} style={{background:'none',border:'none',cursor:'pointer',fontFamily:'var(--mono)',fontSize:'0.62rem',color:'var(--text-4)',letterSpacing:'0.08em',padding:'0.2rem 0.4rem',borderRadius:4,transition:'color 0.15s'}}
+            onMouseEnter={e=>e.currentTarget.style.color='var(--text-2)'}
+            onMouseLeave={e=>e.currentTarget.style.color='var(--text-4)'}
+          >Admin</button>
+        </div>
+
+      </div>
+    </div>
+  );
+}
+
+// ── Chat ─────────────────────────────────────────────────────────────
+function ChatPage({adminAuthed, onLogout}) {
+  const [msgs, setMsgs] = useState([
+    {role:'assistant',content:"Hi! I'm WiLLi, Will's AI clone. Instead of reading a bio, why not just have a chat? I can tell you about his journey."},
+    {role:'assistant',content:"I'm built on a live RLHF pipeline, so the more we talk, the more 'Will' I become."},
+  ]);
+  const [input, setInput] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [showContact, setShowContact] = useState(false);
+  const [contact, setContact] = useState('');
+  const [contactSent, setContactSent] = useState(false);
+  const [correction, setCorrection] = useState('');
+  const [toast, setToast] = useState(null);
+  const [metrics, setMetrics] = useState(null);
+  const [logs, setLogs] = useState('No training events yet.');
+  const bottomRef = useRef(null);
+  useEffect(() => { bottomRef.current?.scrollIntoView({behavior:'smooth'}); }, [msgs,loading]);
+  useEffect(() => { fetch(`${API}/ping_visit`).catch(()=>{}); }, []);
+
+  useEffect(() => {
+    if (!adminAuthed) return;
+    const poll = setInterval(() => {
+      fetch(`${API}/admin/metrics`).then(r=>r.json()).then(setMetrics).catch(()=>{});
+      fetch(`${API}/admin/logs`).then(r=>r.json()).then(d=>setLogs(d.logs||'No logs.')).catch(()=>{});
+    }, 4000);
+    fetch(`${API}/admin/metrics`).then(r=>r.json()).then(setMetrics).catch(()=>{});
+    fetch(`${API}/admin/logs`).then(r=>r.json()).then(d=>setLogs(d.logs||'No logs.')).catch(()=>{});
+    return () => clearInterval(poll);
+  }, [adminAuthed]);
+
+  const showToast = (type,msg) => { setToast({type,msg}); setTimeout(()=>setToast(null),3500); };
+  const logPref = () => fetch(`${API}/admin/preferred`,{method:'POST'}).then(r=>r.json()).then(d=>showToast('ok',d.msg||'Logged')).catch(()=>showToast('err','Failed'));
+  const pushCorr = () => {
+    if(!correction.trim()) return;
+    fetch(`${API}/admin/correct`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({correction})})
+      .then(r=>r.json()).then(d=>{showToast('ok',d.msg||'Pushed');setCorrection('');}).catch(()=>showToast('err','Failed'));
+  };
+
+  const send = useCallback(async () => {
+    if (!input.trim()||loading) return;
+    const q=input.trim(); setInput('');
+    setMsgs(prev=>[...prev,{role:'user',content:q}]);
+    setLoading(true);
+    try {
+      const res=await fetch(`${API}/chat`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({question:q})});
+      const reader=res.body.getReader(); const dec=new TextDecoder(); let ans='';
+      setMsgs(prev=>[...prev,{role:'assistant',content:'',streaming:true}]);
+      while(true){const{done,value}=await reader.read();if(done)break;ans+=dec.decode(value,{stream:true});setMsgs(prev=>{const m=[...prev];m[m.length-1]={role:'assistant',content:ans,streaming:true};return m;});}
+      setMsgs(prev=>{const m=[...prev];m[m.length-1]={role:'assistant',content:ans};return m;});
+    } catch { setMsgs(prev=>[...prev,{role:'assistant',content:"WiLLi is busy right now — try again in a moment."}]); }
+    finally { setLoading(false); }
+  },[input,loading]);
+
+  const sendContact = async () => {
+    if(!contact.trim()) return;
+    try{await fetch(`${API}/contact`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contact})});}catch{}
+    setContactSent(true);setContact('');
+  };
+
+  return (
+    <div className="page" style={{display:'flex',height:'calc(100vh - var(--nav-h))'}}>
+      {/* Chat column */}
+      <div className="cl" style={{flex:1,minWidth:0,maxWidth: adminAuthed ? 'none' : 720, margin:'0 auto'}}>
+        <div className="ch">
+          <div className="ey">Will Lim Wen Long · Data Scientist</div>
+          <h1>Chat with WiLLi</h1>
+        </div>
+        <div className="is">
+          WiLLi runs locally via Cloudflare Tunnel. If slow, refresh in a minute.{' '}
+          <br />
+          Reach Will: <a href="https://wa.me/6598437531">+65 98437531</a>{' '}
+          · <a href="https://t.me/wlhere">@wlhere</a>{' '}
+          · <a href="mailto:wenlonglim96@hotmail.com">wenlonglim96@hotmail.com</a>
+        </div>
+        <button className="ct" onClick={()=>setShowContact(v=>!v)}>
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          {showContact?'Close form':'Leave your contact and I will reach out'}
+        </button>
+        {showContact&&(
+          <div className="cp">
+            {contactSent?<p style={{fontSize:'0.73rem',color:'#15803d'}}>Received. Will will be in touch soon.</p>:<>
+              <label>Your contact details (WhatsApp, Telegram, email, or anything really)</label>
+              <textarea placeholder="e.g. WhatsApp: +65 9123 4567 / @yourhandle" value={contact} onChange={e=>setContact(e.target.value)}/>
+              <button onClick={sendContact}>Send</button>
+            </>}
+          </div>
+        )}
+        <div className="ma">
+          {msgs.map((m,i)=>(
+            <div key={i} className={`msg ${m.role}`}>
+              <div className="av">{m.role==='assistant'?'💬':'💭'}</div>
+              <div className="bub">{m.content}{m.streaming&&<span style={{opacity:0.35}}>▋</span>}</div>
+            </div>
+          ))}
+          {loading&&msgs[msgs.length-1]?.role!=='assistant'&&(
+            <div className="msg assistant">
+              <div className="av">💬</div>
+              <div className="bub"><div className="td"><span/><span/><span/></div></div>
+            </div>
+          )}
+          <div ref={bottomRef}/>
+        </div>
+        <div className="ia">
+          <textarea placeholder="Ask about Will's life, hobby, career, or projects..." value={input}
+            onChange={e=>setInput(e.target.value)}
+            onKeyDown={e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send();}}} rows={1}/>
+          <button className="sb" onClick={send} disabled={loading||!input.trim()}>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+          </button>
+        </div>
+      </div>
+
+      {/* Admin sidebar */}
+      {adminAuthed && (
+        <div style={{
+          width:300,flexShrink:0,
+          borderLeft:'1px solid var(--border)',
+          background:'var(--cream-2)',
+          display:'flex',flexDirection:'column',
+          overflowY:'auto',
+          padding:'1.25rem',
+        }}>
+          <div style={{marginBottom:'1rem',paddingBottom:'0.75rem',borderBottom:'1px solid var(--border)'}}>
+            <div className="ey" style={{marginBottom:'0.2rem'}}>Admin Panel</div>
+            <div style={{fontFamily:'var(--display)',fontSize:'0.9rem',fontWeight:600,color:'var(--text)'}}>RLHF Controls</div>
+          </div>
+
+          {/* Feedback loop */}
+          <div style={{marginBottom:'1rem'}}>
+            <div style={{fontSize:'0.68rem',fontWeight:500,color:'var(--text-2)',marginBottom:'0.5rem'}}>Feedback Loop</div>
+            <button className="bs" onClick={logPref} style={{marginBottom:'0.5rem',fontSize:'0.72rem',width:'100%'}}>
+              Log last response as preferred
+            </button>
+            <input className="fi" style={{marginBottom:'0.4rem',fontSize:'0.75rem'}}
+              value={correction} onChange={e=>setCorrection(e.target.value)}
+              placeholder="Correction in Will's voice..."/>
+            <button className="bs" onClick={pushCorr} style={{fontSize:'0.72rem',width:'100%'}}>
+              Push to Redpanda →
+            </button>
+            {toast&&<div className={`toast ${toast.type}`} style={{fontSize:'0.68rem'}}>{toast.msg}</div>}
+          </div>
+
+          {/* Metrics */}
+          {metrics&&Object.keys(metrics).length>0&&(
+            <div style={{marginBottom:'1rem'}}>
+              <div style={{fontSize:'0.68rem',fontWeight:500,color:'var(--text-2)',marginBottom:'0.15rem'}}>Last Training Step</div>
+              <div style={{fontSize:'0.6rem',color:'var(--text-4)',fontFamily:'var(--mono)',marginBottom:'0.6rem'}}>{metrics.timestamp||''}</div>
+              <div style={{display:'flex',flexDirection:'column',gap:0}}>
+                {[['Loss','loss'],['Grad Norm','grad_norm'],['Reward Margin','rewards_margin'],
+                  ['Accuracy','rewards_accuracy'],['LogP Chosen','logps_chosen'],['LogP Rejected','logps_rejected']
+                ].map(([l,k],i,arr)=>(
+                  <div key={k} style={{
+                    display:'flex',justifyContent:'space-between',alignItems:'center',
+                    padding:'0.32rem 0',
+                    borderBottom:i<arr.length-1?'1px solid var(--border)':'none',
+                  }}>
+                    <span style={{fontSize:'0.65rem',color:'var(--text-3)',fontFamily:'var(--mono)'}}>{l}</span>
+                    <span style={{fontSize:'0.65rem',color:'var(--text)',fontFamily:'var(--mono)',fontWeight:500}}>
+                      {metrics[k]!=null?(typeof metrics[k]==='number'?metrics[k].toFixed(4):metrics[k]):'—'}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Logs */}
+          <div style={{marginBottom:'1rem'}}>
+            <div style={{fontSize:'0.68rem',fontWeight:500,color:'var(--text-2)',marginBottom:'0.5rem'}}>Training Logs</div>
+            <div className="lb" style={{maxHeight:240,fontSize:'0.62rem'}}>{logs}</div>
+          </div>
+
+          <button className="ll" onClick={onLogout} style={{marginTop:'auto'}}>Sign out</button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── Architecture — graph zoom ────────────────────────────────────────
+const CW=175,CH=110,NW=155,NH=78,PX=30,PY=50;
+const NODEMAP = [
+  {id:'user',     col:2,row:0,label:'User',           sub:'Browser',             color:'#d4c478'},
+  {id:'streamlit',col:2,row:1,label:'React Frontend', sub:'index.html · Port 3000',color:'#d4795a'},
+  {id:'rag',      col:0,row:2,label:'RAG Pipeline',   sub:'ChromaDB · MiniLM',   color:'#b896c8'},
+  {id:'fastapi',  col:2,row:2,label:'FastAPI Backend', sub:'api.py · Port 8000', color:'#78aec8'},
+  {id:'llm',      col:4,row:2,label:'Qwen 2.5 3B',    sub:'4-bit NF4 · CUDA',   color:'#d4a84b'},
+  {id:'producer', col:0,row:3,label:'Kafka Producer',  sub:'stream_service',     color:'#c87a50'},
+  {id:'redpanda', col:2,row:3,label:'Redpanda Broker', sub:'Port 9092',          color:'#c87878'},
+  {id:'trainer',  col:4,row:3,label:'DPO Trainer',     sub:'train_loop.py',      color:'#78a896'},
+  {id:'adapter',  col:4,row:4,label:'LoRA Adapter',    sub:'./willi_adapter',    color:'#a098c8'},
+];
+const EDGES = [
+  {from:'user',to:'streamlit',color:'#d4795a',d:false},
+  {from:'streamlit',to:'fastapi',color:'#78aec8',d:false},
+  {from:'fastapi',to:'rag',color:'#b896c8',d:false},
+  {from:'rag',to:'fastapi',color:'#b896c8',d:false},
+  {from:'fastapi',to:'llm',color:'#d4a84b',d:false},
+  {from:'llm',to:'fastapi',color:'#d4a84b',d:false},
+  {from:'fastapi',to:'streamlit',color:'#78aec8',d:false},
+  {from:'streamlit',to:'producer',color:'#c87a50',d:true},
+  {from:'producer',to:'redpanda',color:'#c87878',d:true},
+  {from:'redpanda',to:'trainer',color:'#78a896',d:true},
+  {from:'trainer',to:'adapter',color:'#a098c8',d:true},
+  {from:'adapter',to:'llm',color:'#a098c8',d:true},
+];
+function nc(id){const n=NODEMAP.find(x=>x.id===id);return{x:PX+n.col*CW+NW/2,y:PY+n.row*CH+NH/2};}
+function ntl(id){const n=NODEMAP.find(x=>x.id===id);return{x:PX+n.col*CW,y:PY+n.row*CH};}
+
+const ARCH_SECTIONS = [
+  {id:null, vb:[0,0,905,650],
+   label:'System Architecture', title:['Real-Time','RLHF Pipeline'],
+   body:"WiLLi's pipeline spans inference, retrieval, and continuous learning. Every component is connected. Scroll to zoom into each layer.",
+   specs:null},
+  {id:'user', vb:[298,0,320,210],
+   label:'Client Layer', title:['User','Interface'],
+   body:"The user visits askwilli.dev via Cloudflare Tunnel, which proxies to the React frontend on port 3000. Responses stream token-by-token from FastAPI using chunked transfer encoding instead of waiting for full generation.",
+   specs:['Cloudflare Tunnel → Port 3000','HTTPS + chunked streaming','React 18 hash-based SPA']},
+  {id:'streamlit', vb:[298,100,320,210],
+   label:'Frontend', title:['React','Frontend'],
+   body:"Single-file React app (index.html) with hash-based routing. Streams tokens from FastAPI in real time. Admin sidebar appears when logged in which shows RLHF controls, metrics, and training logs.",
+   specs:['React 18 CDN · No build step','Hash routing: /chat /architecture /projects','Streaming fetch with ReadableStream','Admin sidebar with RLHF controls']},
+  {id:'fastapi', vb:[298,210,320,210],
+   label:'Inference Engine', title:['FastAPI','Backend'],
+   body:"Async REST API on port 8000. Python threading runs model.generate() in a background thread while streaming tokens via TextIteratorStreamer, keeping the event loop unblocked.",
+   specs:['FastAPI + Uvicorn','StreamingResponse','PEFT adapter hot-loading','Threading for non-blocking generation']},
+  {id:'rag', vb:[0,200,310,220],
+   label:'Knowledge Base', title:['RAG','Pipeline'],
+   body:"Will's documents chunked and vectorized with all-MiniLM-L6-v2 (384-dim). Top-4 cosine similarity results injected as grounded context into every LLM prompt.",
+   specs:['ChromaDB vector store','384-dim dense embeddings','Top-k=4 similarity search','PyPDFLoader ingestion']},
+  {id:'llm', vb:[590,200,315,220],
+   label:'Language Model', title:['Qwen 2.5','3B Instruct'],
+   body:"Quantized to 4-bit NF4 with double quantization which reduces VRAM from 6GB to 2GB. LoRA adapter (r=16) applied across all attention projection layers for personality fine-tuning.",
+   specs:['BitsAndBytes 4-bit NF4','LoRA r=16 α=32 dropout=0.05','Target: q_proj k_proj v_proj o_proj','max_new_tokens=500 temperature=0.4']},
+  {id:'producer', vb:[0,310,310,210],
+   label:'RLHF Path', title:['Kafka','Producer'],
+   body:"When admin submits a correction, a DPO pair (prompt, chosen, rejected) is serialized to JSON and produced to the rlhf-feedback Redpanda topic. Synchronous flush() ensures delivery.",
+   specs:['confluent-kafka Python client','Topic: rlhf-feedback','JSON: {prompt, chosen, rejected}','Synchronous flush()']},
+  {id:'redpanda', vb:[298,310,320,210],
+   label:'Message Bus', title:['Redpanda','Broker'],
+   body:"Kafka-compatible broker decouples the feedback UI from the training loop. Feedback is durably persisted even if the training loop is temporarily offline ensuring no data loss.",
+   specs:['Kafka-compatible API','Port 9092','Docker: redpandadata/redpanda','Persistent volume mount']},
+  {id:'trainer', vb:[590,310,315,210],
+   label:'Continuous Learning', title:['DPO','Training Loop'],
+   body:"Polls Redpanda continuously for new preference pairs. Runs a single gradient step via TRL DPOTrainer with β=0.1 KL penalty. LoRA weights update in-place and are immediately available.",
+   specs:['TRL DPOTrainer','β=0.1 KL penalty','bfloat16 online training','Confluent Kafka Consumer']},
+  {id:'adapter', vb:[590,415,315,220],
+   label:'Learned Personality', title:['LoRA','Adapter'],
+   body:"The adapter represents WiLLi's learned personality, or in other words, the delta between base Qwen and Will's preferred response style. Saved after every training step and loaded by the API at startup.",
+   specs:['adapter_model.safetensors','PEFT PeftModel.from_pretrained()','Persisted between sessions','Incremental updates per feedback']},
+];
+
+function ArchitecturePage() {
+  const containerRef = useRef(null);
+  const [activeIdx, setActiveIdx] = useState(0);
+  const [vb, setVb] = useState([0,0,905,650]);
+  const targetVb = useRef([0,0,905,650]);
+  const rafRef = useRef(null);
+  const jumping = useRef(false);
+
+  // Smooth viewBox lerp via RAF
+  useEffect(() => {
+    const lerp = (a,b,t) => a+(b-a)*t;
+    const tick = () => {
+      setVb(v => {
+        const t = targetVb.current;
+        return [lerp(v[0],t[0],0.09),lerp(v[1],t[1],0.09),lerp(v[2],t[2],0.09),lerp(v[3],t[3],0.09)];
+      });
+      rafRef.current = requestAnimationFrame(tick);
+    };
+    rafRef.current = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(rafRef.current);
+  }, []);
+
+  // Scroll → section
+  useEffect(() => {
+    const onScroll = () => {
+      if (!containerRef.current || jumping.current) return;
+      const scrolled = Math.max(0, window.scrollY - containerRef.current.offsetTop);
+      const sH = window.innerHeight * 0.9;
+      const idx = Math.min(ARCH_SECTIONS.length-1, Math.floor(scrolled/sH));
+      setActiveIdx(idx);
+      targetVb.current = ARCH_SECTIONS[idx].vb;
+    };
+    window.addEventListener('scroll', onScroll, {passive:true});
+    setTimeout(onScroll, 50);
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
+  const sec = ARCH_SECTIONS[activeIdx];
+
+  const NODE_TO_SECTION = {user:1,streamlit:2,fastapi:3,rag:4,llm:5,producer:6,redpanda:7,trainer:8,adapter:9};
+  const scrollToSection = (nodeId) => {
+    if (!containerRef.current) return;
+    const sH = window.innerHeight * 0.9;
+    jumping.current = true;
+    if (nodeId === null) {
+      // Return to overview
+      targetVb.current = ARCH_SECTIONS[0].vb;
+      setActiveIdx(0);
+      window.scrollTo({ top: containerRef.current.offsetTop, behavior: 'instant' });
+    } else {
+      const idx = NODE_TO_SECTION[nodeId];
+      if (idx === undefined) return;
+      targetVb.current = ARCH_SECTIONS[idx].vb;
+      setActiveIdx(idx);
+      window.scrollTo({ top: containerRef.current.offsetTop + idx * sH, behavior: 'instant' });
+    }
+    setTimeout(() => { jumping.current = false; }, 150);
+  };
+  const activeNodeId = sec.id;
+  const activeNode = activeNodeId ? NODEMAP.find(n=>n.id===activeNodeId) : null;
+  const accentColor = activeNode ? activeNode.color : '#c8a84b';
+
+  return (
+    <div style={{paddingTop:'var(--nav-h)'}}>
+      <div ref={containerRef} style={{height:`${ARCH_SECTIONS.length*100}vh`}}>
+        <div style={{
+          position:'sticky',top:'var(--nav-h)',
+          height:'calc(100vh - var(--nav-h))',
+          display:'flex',background:'var(--cream)',overflow:'hidden'
+        }}>
+
+          {/* LEFT — text */}
+          <div style={{
+            width:'36%',padding:'2.5rem 2rem',
+            display:'flex',flexDirection:'column',justifyContent:'center',
+            borderRight:'1px solid #2e2318',position:'relative',
+          }}>
+            <div style={{fontFamily:'var(--mono)',fontSize:'0.55rem',color:'var(--text-4)',letterSpacing:'0.2em',marginBottom:'1.25rem'}}>
+              {String(activeIdx+1).padStart(2,'0')} / {String(ARCH_SECTIONS.length).padStart(2,'0')}
+            </div>
+            <div style={{fontFamily:'var(--mono)',fontSize:'0.58rem',letterSpacing:'0.22em',textTransform:'uppercase',color:'var(--text-2)',marginBottom:'0.75rem'}}>
+              {sec.label}
+            </div>
+            <div style={{fontFamily:'var(--display)',fontSize:'clamp(1.6rem,2.8vw,2.5rem)',fontWeight:500,lineHeight:1.15,letterSpacing:'-0.02em',color:'var(--text)',marginBottom:'1.1rem'}}>
+              {sec.title[0]}<br/><span style={{}}>{sec.title[1]}</span>
+            </div>
+            <div style={{width:28,height:1,background:accentColor,marginBottom:'1.1rem',opacity:0.5,transition:'background 0.6s ease'}}/>
+            <div style={{fontSize:'0.8rem',lineHeight:1.8,color:'var(--text-2)',maxWidth:320}}>
+              {sec.body}
+            </div>
+            {sec.specs&&(
+              <div style={{display:'flex',flexDirection:'column',gap:'0.42rem',marginTop:'0.85rem'}}>
+                {sec.specs.map((s,i)=>(
+                  <div key={i} style={{display:'flex',alignItems:'flex-start',gap:'0.5rem',fontSize:'0.72rem',color:'#9a8a78'}}>
+                    <div style={{width:4,height:4,borderRadius:'50%',background:accentColor,flexShrink:0,marginTop:'0.32rem',opacity:0.6,transition:'background 0.6s'}}/>
+                    <span>{s}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+            {activeIdx<ARCH_SECTIONS.length-1&&(
+              <div style={{position:'absolute',bottom:'1.75rem',left:'2rem',display:'flex',alignItems:'center',gap:'0.5rem',opacity:0.28}}>
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#e6edf3" strokeWidth="2" style={{animation:'shbounce 2s infinite'}}><polyline points="6 9 12 15 18 9"/></svg>
+                <span style={{fontFamily:'var(--mono)',fontSize:'0.55rem',letterSpacing:'0.15em',color:'var(--text-3)',textTransform:'uppercase'}}>Scroll</span>
+              </div>
+            )}
+          </div>
+
+          {/* RIGHT — SVG graph */}
+          <div style={{flex:1,display:'flex',alignItems:'center',justifyContent:'center',padding:'1.5rem 2rem',overflow:'hidden',position:'relative'}}>
+            {activeIdx > 0 && (
+              <button
+                onClick={() => scrollToSection(null)}
+                style={{
+                  position:'absolute',top:'1rem',right:'1rem',zIndex:10,
+                  display:'flex',alignItems:'center',gap:'0.4rem',
+                  background:'var(--cream)',
+                  border:'1px solid var(--border-2)',
+                  borderRadius:6,padding:'0.4rem 0.85rem',
+                  fontFamily:'var(--mono)',fontSize:'0.62rem',
+                  letterSpacing:'0.08em',color:'var(--text-2)',
+                  cursor:'pointer',transition:'all 0.15s',
+                }}
+                onMouseEnter={e=>{e.currentTarget.style.background='var(--cream-3)';e.currentTarget.style.borderColor='var(--text-3)';}}
+                onMouseLeave={e=>{e.currentTarget.style.background='var(--cream)';e.currentTarget.style.borderColor='var(--border-2)';}}
+              >
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+                Overview
+              </button>
+            )}
+            <svg viewBox={vb.join(' ')} style={{width:'100%',height:'100%'}} xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <pattern id="ag" width="20" height="20" patternUnits="userSpaceOnUse">
+                  <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#ede5cc" strokeWidth="0.5"/>
+                </pattern>
+                {EDGES.map((e,i)=>(
+                  <marker key={i} id={`am${i}`} markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+                    <path d="M0,0 L0,6 L6,3 z" fill={e.color} opacity="0.75"/>
+                  </marker>
+                ))}
+              </defs>
+              <rect width="905" height="650" fill="#fffdf7" style={{pointerEvents:"none"}}/>
+              <rect width="905" height="650" fill="url(#ag)" opacity="0.5" style={{pointerEvents:"none"}}/>
+
+              {/* edges */}
+              {EDGES.map((e,i)=>{
+                const f=nc(e.from),t=nc(e.to);
+                const dx=t.x-f.x,dy=t.y-f.y,dist=Math.sqrt(dx*dx+dy*dy);
+                const ux=dx/dist,uy=dy/dist;
+                const x1=f.x+ux*(NW/2-2),y1=f.y+uy*(NH/2-2);
+                const x2=t.x-ux*(NW/2+7),y2=t.y-uy*(NH/2+7);
+                const isActive=activeNodeId&&(e.from===activeNodeId||e.to===activeNodeId);
+                return (
+                  <line key={i} x1={x1} y1={y1} x2={x2} y2={y2}
+                    stroke={e.color}
+                    strokeWidth={isActive?2:0.9}
+                    strokeOpacity={activeNodeId?(isActive?0.9:0.1):0.35}
+                    strokeDasharray={e.d?'5,3':'none'}
+                    markerEnd={`url(#am${i})`}
+                    style={{transition:'stroke-opacity 0.6s,stroke-width 0.4s'}}
+                  />
+                );
+              })}
+
+              {/* nodes */}
+              {NODEMAP.map(n=>{
+                const {x,y}=ntl(n.id);
+                const cx2=x+NW/2;
+                const isActive=n.id===activeNodeId;
+                const isGhost=activeNodeId&&!isActive;
+                return (
+                  <g key={n.id} onClick={()=>activeIdx===0&&scrollToSection(n.id)} style={{cursor:activeIdx===0?'pointer':'default',pointerEvents:'all'}}>
+                    {isActive&&<rect x={x-7} y={y-7} width={NW+14} height={NH+14} rx="11" fill={n.color} opacity="0.12"/>}
+                    <rect x={x} y={y} width={NW} height={NH} rx="6"
+                      fill={isActive?'#f0e8d8':'#fdf9ee'}
+                      stroke={isActive?n.color:'#21262d'}
+                      strokeWidth={isActive?1.8:0.8}
+                      opacity={isGhost?0.22:1}
+                      style={{transition:'opacity 0.6s,stroke-width 0.4s'}}
+                    />
+                    <rect x={x} y={y} width={NW} height={3} rx="2" fill={n.color}
+                      opacity={isActive?1:(isGhost?0.12:0.45)}
+                      style={{transition:'opacity 0.6s'}}
+                    />
+                    <text x={cx2} y={y+26} textAnchor="middle" fontSize="10" fontWeight="600"
+                      fill='#1a1208'
+                      opacity={isGhost?0.22:1}
+                      style={{transition:'opacity 0.6s,fill 0.4s'}}>
+                      {n.label}
+                    </text>
+                    <text x={cx2} y={y+42} textAnchor="middle" fontSize="8" fill="#8a7a5a"
+                      opacity={isGhost?0.15:0.85}
+                      style={{transition:'opacity 0.6s'}}>
+                      {n.sub}
+                    </text>
+
+                  </g>
+                );
+              })}
+            {activeIdx===0&&(
+                <text x="452" y="635" textAnchor="middle" fontSize="9" fill="#4a3e28" fontFamily="var(--mono)" letterSpacing="0.1em" opacity="0.8">
+                  CLICK ANY NODE TO EXPLORE
+                </text>
+              )}
+            </svg>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Projects — horizontal scroll ────────────────────────────────────
+const projects = [
+  {num:'01',title:'WiLLi',sub:'Real-Time RLHF AI Clone',body:"Personal AI clone with a live feedback loop. DPO training pairs stream via Redpanda and update a LoRA adapter on-the-fly. RAG over ChromaDB with 4-bit NF4 quantized Qwen 2.5 and async token streaming via FastAPI.",pills:['Qwen 2.5','LoRA/PEFT','TRL DPO','BitsAndBytes NF4','React','FastAPI','ChromaDB','Redpanda','Kafka','CUDA'],accent:'#d4a84b',github:'https://github.com/wenlong96/streaming-rl-llm'},
+  {num:'02',title:'Graph ML',sub:'GNNs & Graph Transformers',body:"Ad campaign optimization framed as node-level prediction on a k-NN campaign graph. Graph Transformer architectures with Laplacian Positional Encoding and Global Attention. Studied over-smoothing and over-expressivity trade-offs.",pills:['PyTorch','DGL','NetworkX','Graph Transformers','LapPE','GNN'],accent:'#c87878',github:'https://github.com/wenlong96/graph_ml'},
+  {num:'03',title:'Bayesian Network',sub:'Ad Campaign Optimization',body:"DAG to optimize Meta ad campaigns. Latent demographics inferred via EM-MAP with SensorTower priors. HMM with Negative Binomial emission for seasonal impression spikes (Lunar New Year, Hari Raya).",pills:['Bayesian Network','DAG','EM-MAP','HMM','Pyro','Viterbi','pgmpy'],accent:'#c87a50',github:'https://github.com/wenlong96/dag_inference_ads'},
+  {num:'04',title:'Nutri-Grade',sub:'Food Classification · 78 SG Classes',body:"CV system classifying 78 Singaporean food categories into Nutri-Grade health labels A-D. Benchmarked CNN, LeNet-5, VGG-16, ResNet-18, EfficientNet-B0, and ViT across 39,000 images. 82.78% accuracy.",pills:['EfficientNet-B0','ViT','ResNet-18','VGG-16','PyTorch','Transfer Learning','CNN'],accent:'#78a896',github:'https://github.com/wenlong96/cnn_food_image'},
+  {num:'05',title:'Risk & Fraud',sub:'Anomaly Detection Pipeline',body:"End-to-end fraud detection on severely imbalanced financial data. Ensemble of LightGBM, XGBoost, CatBoost, AdaBoost with ADASYN resampling and Bayesian Optimization with automated early-stopping callbacks.",pills:['LightGBM','XGBoost','CatBoost','ADASYN','BayesSearchCV','scikit-learn','Plotly'],accent:'#b896c8',github:'https://github.com/wenlong96/risk_fraud_anomaly'},
+  {num:'06',title:'Time Series',sub:'High-Performance Forecasting',body:"Scalable forecasting for daily sales across 50+ SKUs. Deep LSTM with PACF autocorrelation analysis. LightGBM with rolling-window lag features. Parallelized training across cores with doParallel and foreach.",pills:['LSTM','LightGBM','ARIMAX','Keras','TensorFlow','R','doParallel','imputeTS','mlr3'],accent:'#78aec8',github:'https://github.com/wenlong96/lgbm_time_series'},
+  {num:'07',title:'Q&M Dental',sub:'Relational Database Design',body:"Scheduling and inventory database for Singapore's largest private dental group. ERD normalized to 3NF with MySQL schemas and cascading foreign keys for real-time multi-branch room and equipment scheduling.",pills:['MySQL','ERD','3NF Normalization','SQL','Referential Integrity','Database Design'],accent:'#a098c8',github:'https://github.com/wenlong96/data_management'},
+];
+
+function ProjectsPage() {
+  const containerRef = useRef(null);
+  const stripRef = useRef(null);
+  const offsetRef = useRef(0);
+  const targetOffset = useRef(0);
+  const rafRef = useRef(null);
+  const [activeIdx, setActiveIdx] = useState(0);
+
+  // Direct DOM lerp — no React state updates in RAF
+  useEffect(() => {
+    const lerp = (a,b,t) => a+(b-a)*t;
+    const tick = () => {
+      offsetRef.current = lerp(offsetRef.current, targetOffset.current, 0.1);
+      if (stripRef.current) {
+        stripRef.current.style.transform = `translateX(-${offsetRef.current}px)`;
+      }
+      rafRef.current = requestAnimationFrame(tick);
+    };
+    rafRef.current = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(rafRef.current);
+  }, []);
+
+  useEffect(() => {
+    const onScroll = () => {
+      if (!containerRef.current) return;
+      const scrolled = Math.max(0, window.scrollY - containerRef.current.offsetTop);
+      const totalScroll = containerRef.current.offsetHeight - window.innerHeight;
+      const progress = totalScroll > 0 ? Math.min(1, scrolled / totalScroll) : 0;
+      const maxOffset = (projects.length - 1) * window.innerWidth;
+      targetOffset.current = progress * maxOffset;
+      setActiveIdx(Math.round(progress * (projects.length - 1)));
+    };
+    window.addEventListener('scroll', onScroll, {passive:true});
+    setTimeout(onScroll, 80);
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
+  const p = projects[activeIdx];
+
+  return (
+    <div style={{paddingTop:'var(--nav-h)'}}>
+      <div ref={containerRef} style={{height:`${projects.length * 120}vh`}}>
+        <div style={{
+          position:'sticky',top:'var(--nav-h)',
+          height:'calc(100vh - var(--nav-h))',
+          overflow:'hidden',
+          background:'var(--cream)',
+        }}>
+          {/* Progress bar */}
+          <div style={{position:'absolute',top:0,left:0,right:0,height:'2px',background:'var(--border)',zIndex:10}}>
+            <div style={{height:'100%',background:'var(--gold)',width:`${(activeIdx/(projects.length-1))*100}%`,transition:'width 0.3s ease',opacity:0.7}}/>
+          </div>
+
+          {/* Project selector nav */}
+          <div style={{
+            position:'absolute',bottom:'1.5rem',left:'50%',
+            transform:'translateX(-50%)',
+            zIndex:10,
+            display:'flex',alignItems:'center',gap:'0.5rem',
+            background:'rgba(255,253,247,0.9)',
+            backdropFilter:'blur(8px)',
+            border:'1px solid var(--border)',
+            borderRadius:30,
+            padding:'0.4rem 0.75rem',
+          }}>
+            {projects.map((proj,i) => (
+              <button
+                key={i}
+                onClick={() => {
+                  const totalScroll = containerRef.current.offsetHeight - window.innerHeight;
+                  const target = (i / (projects.length - 1)) * totalScroll + containerRef.current.offsetTop;
+                  window.scrollTo({ top: target, behavior: 'smooth' });
+                }}
+                style={{
+                  display:'flex',alignItems:'center',gap:'0.3rem',
+                  background: i===activeIdx ? proj.accent : 'transparent',
+                  border:'none',cursor:'pointer',
+                  padding:'0.28rem 0.65rem',borderRadius:20,
+                  transition:'all 0.2s',
+                }}
+                onMouseEnter={e=>{if(i!==activeIdx)e.currentTarget.style.background='var(--cream-3)';}}
+                onMouseLeave={e=>{if(i!==activeIdx)e.currentTarget.style.background='transparent';}}
+              >
+                <div style={{
+                  width:5,height:5,borderRadius:'50%',
+                  background: i===activeIdx ? 'rgba(255,255,255,0.8)' : proj.accent,
+                  opacity: i===activeIdx ? 1 : 0.55,
+                  flexShrink:0,transition:'all 0.2s',
+                }}/>
+                <span style={{
+                  fontFamily:'var(--mono)',fontSize:'0.56rem',
+                  color: i===activeIdx ? '#fff' : 'var(--text-3)',
+                  letterSpacing:'0.04em',whiteSpace:'nowrap',
+                  fontWeight: i===activeIdx ? 500 : 400,
+                  transition:'all 0.2s',
+                }}>{proj.title}</span>
+              </button>
+            ))}
+          </div>
+
+          {/* Horizontal strip — transform set directly via ref */}
+          <div ref={stripRef} style={{
+            display:'flex',
+            width:`${projects.length * 100}vw`,
+            height:'100%',
+            willChange:'transform',
+          }}>
+            {projects.map((proj,i) => (
+              <div key={i} style={{
+                width:'100vw',height:'100%',flexShrink:0,
+                display:'flex',alignItems:'center',
+                padding:'0 10vw',
+                position:'relative',
+                overflow:'hidden',
+                background:'var(--cream)',
+              }}>
+                {/* ghost number */}
+                <div style={{
+                  position:'absolute',right:'5vw',top:'50%',
+                  transform:'translateY(-50%)',
+                  fontFamily:'var(--display)',
+                  fontSize:'clamp(8rem,18vw,16rem)',fontWeight:700,
+                  color:'var(--text)',opacity:0.04,
+                  userSelect:'none',lineHeight:1,letterSpacing:'-0.04em',
+                }}>{proj.num}</div>
+
+                {/* Left: label + title + body */}
+                <div style={{width:'45%',paddingRight:'6vw',borderRight:'1px solid var(--border)'}}>
+                  <div style={{
+                    fontFamily:'var(--mono)',fontSize:'0.6rem',
+                    letterSpacing:'0.18em',color:'var(--text-2)',
+                    marginBottom:'0.75rem',textTransform:'uppercase',fontWeight:500,
+                  }}>
+                    {String(i+1).padStart(2,'0')} — {proj.sub}
+                  </div>
+                  <div style={{
+                    fontFamily:'var(--display)',fontSize:'clamp(2.2rem,4.5vw,3.8rem)',
+                    fontWeight:700,color:'var(--text)',
+                    lineHeight:1.1,letterSpacing:'-0.02em',marginBottom:'1.5rem',
+                  }}>{proj.title}</div>
+                  <div style={{width:32,height:1,background:proj.accent,marginBottom:'1.5rem',opacity:0.6}}/>
+                  <div style={{fontSize:'0.85rem',lineHeight:1.8,color:'var(--text-2)',maxWidth:400}}>
+                    {proj.body}
+                  </div>
+                </div>
+
+                {/* Right: stack + github */}
+                <div style={{flex:1,paddingLeft:'6vw'}}>
+                  <div style={{
+                    fontFamily:'var(--mono)',fontSize:'0.6rem',
+                    letterSpacing:'0.15em',color:'var(--text-3)',
+                    marginBottom:'0.75rem',textTransform:'uppercase',fontWeight:500,
+                  }}>Stack</div>
+                  <div style={{display:'flex',flexWrap:'wrap',gap:'0.5rem',marginBottom:'2.5rem'}}>
+                    {proj.pills.map(pl=>(
+                      <span key={pl} style={{
+                        fontFamily:'var(--mono)',fontSize:'0.68rem',
+                        padding:'0.3rem 0.7rem',borderRadius:20,
+                        border:`1px solid ${proj.accent}`,
+                        color:proj.accent,letterSpacing:'0.03em',
+                      }}>{pl}</span>
+                    ))}
+                  </div>
+                  <a href={proj.github} target="_blank" style={{
+                    display:'inline-flex',alignItems:'center',gap:'0.5rem',
+                    fontFamily:'var(--sans)',fontSize:'0.78rem',fontWeight:500,
+                    color:'var(--text)',textDecoration:'none',
+                    border:'1px solid var(--border-2)',
+                    padding:'0.55rem 1.2rem',borderRadius:5,
+                    transition:'border-color 0.2s',
+                  }}
+                    onMouseEnter={e=>{e.currentTarget.style.borderColor=proj.accent}}
+                    onMouseLeave={e=>{e.currentTarget.style.borderColor='var(--border-2)'}}
+                  >
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
+                    View on GitHub
+                  </a>
+
+                  {/* counter + scroll hint */}
+                  <div style={{position:'absolute',bottom:'2rem',left:'10vw',display:'flex',alignItems:'center',gap:'1.5rem'}}>
+                    <span style={{fontFamily:'var(--mono)',fontSize:'0.6rem',color:'var(--text-3)',letterSpacing:'0.1em'}}>
+                      {String(i+1).padStart(2,'0')} / {String(projects.length).padStart(2,'0')}
+                    </span>
+                    {i < projects.length-1 && (
+                      <span style={{fontFamily:'var(--mono)',fontSize:'0.6rem',color:'var(--text-3)',letterSpacing:'0.1em',display:'flex',alignItems:'center',gap:'0.4rem'}}>
+                        Scroll for next
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{animation:'shbounceH 2s infinite'}}><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+
+function AdminPage({adminAuthed, onLogin, onLogout}) {
+  const [pw,setPw]=useState('');
+  const [err,setErr]=useState('');
+
+  const login=()=>{
+    fetch(`${API}/admin/login`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({password:pw})})
+      .then(r=>r.json()).then(d=>{if(d.ok){onLogin();}else setErr('Incorrect password.');})
+      .catch(()=>setErr('Could not reach backend.'));
+  };
+
+  if(adminAuthed) return(
+    <div className="page"><div className="aw">
+      <div className="at"><div className="ey">Admin Panel</div><h1>Session Active</h1><p>You are logged in. RLHF controls are in the Chat sidebar.</p></div>
+      <div className="card" style={{marginBottom:'0.75rem'}}>
+        <p style={{fontSize:'0.78rem',color:'var(--text-3)',lineHeight:1.6}}>Navigate to the Chat tab to access the feedback loop, training metrics, and logs. They appear in the right panel of the chat view.</p>
+      </div>
+      <button className="ll" onClick={onLogout}>Sign out</button>
+    </div></div>
+  );
+
+  return(
+    <div className="page"><div className="aw">
+      <div className="at"><div className="ey">Restricted Access</div><h1>Admin Panel</h1><p>RLHF feedback loop &amp; DPO training controls</p></div>
+      <div className="card">
+        <h3>Sign in</h3><p className="cd">Enter your admin password to access training controls</p>
+        <label className="fl">Password</label>
+        <input type="password" className="fi" value={pw} onChange={e=>setPw(e.target.value)} onKeyDown={e=>e.key==='Enter'&&login()} placeholder="Admin password"/>
+        {err&&<p className="em">{err}</p>}
+        <button className="bp" onClick={login} style={{marginTop:'0.5rem'}}>Sign in</button>
+      </div>
+    </div></div>
+  );
+}
+
+function App() {
+  const [route,rawNav]=useRoute();
+  const dirRef = useRef('none');
+  const prevRouteRef = useRef(route);
+  const ROUTE_ORDER = ['/home','/chat','/architecture','/projects','/admin'];
+
+  const nav = (newRoute) => {
+    if (newRoute === prevRouteRef.current) return;
+    const oi = ROUTE_ORDER.indexOf(prevRouteRef.current);
+    const ni = ROUTE_ORDER.indexOf(newRoute);
+    dirRef.current = ni >= oi ? 'right' : 'left';
+    prevRouteRef.current = newRoute;
+    rawNav(newRoute);
+  };
+  const [adminAuthed, setAdminAuthed] = useState(() => {
+    try { return sessionStorage.getItem('willi_admin')==='1'; } catch { return false; }
+  });
+  const doLogin = () => {
+    try { sessionStorage.setItem('willi_admin','1'); } catch {}
+    setAdminAuthed(true);
+    dirRef.current = 'right';
+    prevRouteRef.current = '/chat';
+    rawNav('/chat');
+  };
+  const doLogout = () => {
+    try { sessionStorage.removeItem('willi_admin'); } catch {}
+    setAdminAuthed(false);
+  };
+  const pages={
+    '/home':<HomePage nav={nav}/>,
+    '/chat':<ChatPage adminAuthed={adminAuthed} onLogout={doLogout}/>,
+    '/architecture':<ArchitecturePage/>,
+    '/projects':<ProjectsPage/>,
+    '/admin':<AdminPage adminAuthed={adminAuthed} onLogin={doLogin} onLogout={doLogout}/>,
+  };
+  const anim = dirRef.current === 'right'
+    ? 'pageFromRight 0.32s ease-out both'
+    : dirRef.current === 'left'
+    ? 'pageFromLeft 0.32s ease-out both'
+    : 'fi 0.3s ease';
+  return (
+    <>
+      <Nav route={route} nav={nav}/>
+      <div key={route} style={{animation:anim}}>
+        {pages[route]||pages['/home']}
+      </div>
+    </>
+  );
+}
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+
+</script>
+</body>
+</html>

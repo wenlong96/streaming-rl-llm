@@ -175,8 +175,12 @@ def run_dpo_step(batch):
     )
 
     try:
-        with open(log_path, "a", encoding="utf-8") as f:
-            f.write(log_entry)
+        existing = ""
+        if os.path.exists(log_path):
+            with open(log_path, "r", encoding="utf-8") as f:
+                existing = f.read()
+        with open(log_path, "w", encoding="utf-8") as f:
+            f.write(log_entry + existing)
         print(f"[{timestamp}] Logged update to {log_path}")
     except Exception as e:
         print(f"Failed to write log: {e}")

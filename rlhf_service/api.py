@@ -14,6 +14,9 @@ from dotenv import load_dotenv
 load_dotenv()
 import json
 import httpx
+from stream_service.producer import stream_rlhf_feedback
+
+last_context = {"prompt": None, "answer": None}
 
 async def notify_me(message: str):
     token = os.getenv("TELEGRAM_TOKEN")
@@ -80,6 +83,14 @@ retriever = vectorstore.as_retriever(search_kwargs={"k": 1})
 # Initialize FastAPI
 app = FastAPI(title="Will's AI Clone API", version="1.0")
 
+from fastapi.middleware.cors import CORSMiddleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 # Define the data format we expect from the frontend UI
 class ChatRequest(BaseModel):
     question: str
@@ -96,7 +107,7 @@ def health_check():
 async def chat_with_clone(request: ChatRequest):
     await notify_me(f"👤 New message on WiLLi!\n\nQuestion: {request.question[:200]}")
     try:
-        retrieval_query = f"Will's experience, projects, and background related to: {request.question}"
+        retrieval_query = f"Will's experience, projects, background, and hobby related to: {request.question}"
         docs = retriever.invoke(retrieval_query)
         
         combined_context = "\n\n".join([doc.page_content for doc in docs])
@@ -113,11 +124,11 @@ async def chat_with_clone(request: ChatRequest):
             {
                 "role": "system",
                 "content": (
-                    "You are Will, a Senior Data Scientist from Singapore. "
-                    "You speak in first person, are friendly, cheerful, and enthusiastic about AI and data science, "
+                    "You are Will, a Data Scientist from Singapore. "
+                    "You speak in first person, are friendly, cheerful, and enthusiastic, "
                     "but you are also concise and natural — not over the top. "
                     "Never say you are an AI or a language model. "
-                    "Answer questions about your career, projects, and skills directly and confidently."
+                    "Answer questions about you directly and confidently. "
                 )
             },
             {"role": "user", "content": grounded_user_message}
@@ -143,9 +154,14 @@ async def chat_with_clone(request: ChatRequest):
 
         # Generator function for the stream
         def generate():
+            full_answer = []
             for new_text in streamer:
+                full_answer.append(new_text)
                 yield new_text
                 time.sleep(0.01)
+            # Capture after stream completes
+            last_context["prompt"] = request.question
+            last_context["answer"] = "".join(full_answer)
 
         return StreamingResponse(generate(), media_type="text/plain")
     except Exception:
@@ -153,3 +169,68 @@ async def chat_with_clone(request: ChatRequest):
             iter(["WiLLi is busy right now — please try again in a moment!"]),
             media_type="text/plain"
         )
+        
+@app.post("/ping_visit")
+async def ping_visit():
+    await notify_me("👀 Someone just visited askwilli.dev!")
+    return {"ok": True}
+
+@app.post("/contact")
+async def contact(body: dict):
+    contact_info = body.get("contact", "")
+    if contact_info:
+        await notify_me(f"📬 Contact request!\n\n{contact_info}")
+    return {"ok": True}
+
+@app.post("/admin/login")
+async def admin_login(body: dict):
+    pw = body.get("password", "")
+    correct = os.getenv("ADMIN_PASSWORD", "1")
+    return {"ok": pw == correct}
+
+@app.get("/admin/metrics")
+async def admin_metrics():
+    metrics_file = os.path.join(os.getcwd(), "training_metrics.json")
+    if os.path.exists(metrics_file):
+        with open(metrics_file, "r") as f:
+            return json.load(f)
+    return {}
+
+@app.get("/admin/logs")
+async def admin_logs():
+    log_file = os.path.join(os.getcwd(), "training_logs.txt")
+    if os.path.exists(log_file):
+        with open(log_file, "r", encoding="utf-8") as f:
+            lines = f.readlines()
+        return {"logs": "".join(lines[:10])}
+    return {"logs": "No training events yet."}
+
+@app.post("/admin/preferred")
+async def admin_preferred():
+    p = last_context.get("prompt")
+    a = last_context.get("answer")
+    if p and a:
+        stream_rlhf_feedback(p, a, a)
+        return {"msg": "Positive signal logged ✓"}
+    return {"msg": "No recent chat context — ask WiLLi something first."}
+
+@app.post("/admin/correct")
+async def admin_correct(body: dict):
+    correction = body.get("correction", "")
+    p = last_context.get("prompt")
+    a = last_context.get("answer")
+    if not correction:
+        return {"msg": "No correction provided."}
+    if not p or not a:
+        return {"msg": "No recent chat context — ask WiLLi something first."}
+    stream_rlhf_feedback(p, correction, a)
+    return {"msg": f"DPO pair pushed to Redpanda ✓"}
+
+@app.get("/admin/status")
+async def admin_status():
+    status_file = os.path.join(os.getcwd(), "training_status.json")
+    if os.path.exists(status_file):
+        with open(status_file, "r") as f:
+            s = json.load(f)
+        return {"status": s.get("status", "idle")}
+    return {"status": "idle"}
