@@ -60,7 +60,8 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;height:var(--nav-h);backgrou
 .msg.user{flex-direction:row-reverse}
 .av{width:27px;height:27px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.72rem;flex-shrink:0;border:1px solid var(--border);background:var(--cream-2)}
 .msg.user .av{background:var(--cream);color:var(--text);font-size:0.62rem;font-weight:500;border-color:var(--border)}
-.bub{max-width:80%;padding:0.68rem 0.88rem;font-size:0.79rem;line-height:1.7;color:var(--text)}
+.bub{max-width:80%;padding:0.68rem 0.88rem;font-size:0.79rem;line-height:1.7;color:var(--text);white-space:pre-wrap;word-wrap:break-word;overflow-wrap:break-word}
+.msg-wrap .bub{max-width:none}
 .msg.assistant .bub{background:var(--cream-2);border:1px solid var(--border);border-radius:3px 10px 10px 10px}
 .msg.user .bub{background:var(--cream);color:var(--text);border-radius:10px 3px 10px 10px;font-size:0.77rem;border:1px solid var(--border)}
 .td{display:flex;gap:4px;padding:0.18rem 0}
@@ -123,6 +124,171 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;height:var(--nav-h);backgrou
 @keyframes shbounce{0%,100%{transform:translateY(0)}50%{transform:translateY(5px)}}
 @keyframes shbounceH{0%,100%{transform:translateX(0)}50%{transform:translateX(5px)}}
 
+/* home animations */
+@keyframes drawIn{from{transform:scaleX(0);opacity:0}to{transform:scaleX(1);opacity:0.7}}
+@keyframes breathe{0%,100%{opacity:0.022}50%{opacity:0.04}}
+@keyframes chipFadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+
+/* Sequential reveal — each element fades up with its own animation-delay
+   so the home page "assembles itself" rather than appearing all at once. */
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+.h-reveal{opacity:0;animation:fadeUp 0.7s cubic-bezier(0.2,0.8,0.2,1) both}
+
+/* Character-by-character heading reveal */
+@keyframes charIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.h-char{display:inline-block;opacity:0;animation:charIn 0.5s cubic-bezier(0.2,0.8,0.2,1) both;white-space:pre}
+
+/* chat suggestion chips */
+.chip-row{display:flex;flex-wrap:wrap;gap:0.42rem;margin:0.4rem 0 0.2rem;padding-left:35px}
+.chip{background:var(--cream);border:1px solid var(--border-2);border-radius:18px;padding:0.42rem 0.85rem;font-size:0.74rem;font-family:var(--sans);color:var(--text-2);cursor:pointer;transition:all 0.18s;animation:chipFadeIn 0.4s both}
+.chip:hover{background:var(--gold-light);border-color:var(--gold);color:var(--text)}
+.chip:disabled{opacity:0.4;cursor:not-allowed}
+.chip-label{font-family:var(--mono);font-size:0.58rem;letter-spacing:0.15em;color:var(--text-4);text-transform:uppercase;margin:0.5rem 0 0.3rem;padding-left:35px}
+
+/* ── Playground (chess) ───────────────────────────────────── */
+.pg-wrap{max-width:900px;margin:0 auto;padding:calc(var(--nav-h) + 1.5rem) 1.5rem 4rem}
+
+/* Disclaimer banner */
+.pg-banner{background:var(--gold-light);border:1px solid var(--gold);border-radius:8px;padding:0.7rem 1rem;font-family:var(--sans);font-size:0.78rem;color:var(--text-2);display:flex;align-items:center;justify-content:space-between;gap:1rem;margin-bottom:1.25rem}
+.pg-banner button{background:none;border:none;cursor:pointer;color:var(--text-3);font-size:0.95rem;line-height:1;padding:0 0.25rem}
+.pg-banner button:hover{color:var(--text)}
+
+/* Header */
+.pg-head{display:flex;align-items:baseline;justify-content:space-between;gap:1rem;margin-bottom:1rem;flex-wrap:wrap}
+.pg-head h1{font-family:var(--display);font-size:1.6rem;font-weight:700;color:var(--text);letter-spacing:-0.02em;margin:0}
+.pg-head .pg-sub{font-family:var(--mono);font-size:0.62rem;color:var(--text-4);letter-spacing:0.15em;text-transform:uppercase}
+
+/* Difficulty selector */
+.pg-diff{display:flex;flex-wrap:wrap;gap:0.4rem;margin-bottom:1.25rem;justify-content:center}
+.pg-diff button{font-family:var(--sans);font-size:0.72rem;padding:0.42rem 0.85rem;border-radius:99px;border:1px solid var(--border-2);background:var(--cream-2);color:var(--text-3);cursor:pointer;transition:all 0.15s;letter-spacing:0.01em}
+.pg-diff button:hover{border-color:var(--gold);color:var(--text)}
+.pg-diff button.active{background:var(--text);color:var(--cream);border-color:var(--text)}
+.pg-diff button.willi-mode{border-color:var(--gold);color:var(--gold)}
+.pg-diff button.willi-mode.active{background:var(--gold);color:#fffdf7;border-color:var(--gold)}
+
+/* Board container — centered, larger, scales to viewport */
+.pg-board-col{position:relative;margin:0 auto;width:min(680px,88vh,92vw);display:flex;flex-direction:column}
+.pg-board-wrap{position:relative;background:var(--cream-3);padding:14px;border-radius:8px;border:1px solid var(--border-2);box-shadow:0 6px 28px rgba(26,18,8,0.08)}
+.pg-board{display:grid;grid-template-columns:repeat(8,1fr);grid-template-rows:repeat(8,1fr);aspect-ratio:1;width:100%;border-radius:4px;overflow:hidden;user-select:none}
+.pg-sq{position:relative;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.pg-sq.light{background:#f0e6cc}
+.pg-sq.dark{background:#c9b78f}
+.pg-sq.last-move{box-shadow:inset 0 0 0 3px rgba(200,168,75,0.7)}
+.pg-sq.legal-move::after{content:'';position:absolute;width:30%;height:30%;border-radius:50%;background:rgba(26,18,8,0.18);pointer-events:none}
+.pg-sq.legal-capture::after{content:'';position:absolute;inset:6%;border-radius:50%;border:3px solid rgba(180,80,60,0.4);pointer-events:none}
+.pg-sq.selected{box-shadow:inset 0 0 0 3px var(--gold)}
+.pg-sq.in-check{background:#e8a8a8 !important}
+.pg-sq svg{width:84%;height:84%;pointer-events:none;filter:drop-shadow(0 1px 1px rgba(0,0,0,0.15))}
+
+/* Rank/file labels */
+.pg-rank-label{position:absolute;left:3px;top:1px;font-family:var(--mono);font-size:0.55rem;color:rgba(26,18,8,0.4);pointer-events:none}
+.pg-file-label{position:absolute;right:4px;bottom:0px;font-family:var(--mono);font-size:0.55rem;color:rgba(26,18,8,0.4);pointer-events:none}
+
+.pg-status{display:flex;justify-content:space-between;align-items:center;padding:0.85rem 0.25rem 0;font-family:var(--mono);font-size:0.68rem;color:var(--text-3);letter-spacing:0.05em}
+.pg-status .turn-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--text-4);margin-right:0.45rem;vertical-align:middle;transition:background 0.2s}
+.pg-status .turn-dot.thinking{background:var(--gold);animation:pulse 1.4s infinite}
+.pg-status .turn-dot.your-turn{background:#7aa97a}
+.pg-thinking-dots{display:inline-flex;gap:3px;align-items:center;height:14px}
+.pg-thinking-dots span{display:inline-block;width:4px;height:4px;border-radius:50%;background:var(--gold);animation:pgThink 1.2s infinite ease-in-out}
+.pg-thinking-dots span:nth-child(2){animation-delay:0.18s}
+.pg-thinking-dots span:nth-child(3){animation-delay:0.36s}
+@keyframes pgThink{0%,80%,100%{opacity:0.25;transform:translateY(0)}40%{opacity:1;transform:translateY(-2px)}}
+.pg-record{font-family:var(--mono);font-size:0.62rem;color:var(--text-4);letter-spacing:0.1em}
+
+/* Game over panel */
+.pg-result{margin-top:0.85rem;padding:0.9rem 1rem;border-radius:6px;background:var(--cream-2);border:1px solid var(--border);font-family:var(--sans);font-size:0.85rem;color:var(--text-2);display:flex;justify-content:space-between;align-items:center}
+.pg-result button{background:var(--text);color:var(--cream);border:none;border-radius:5px;padding:0.4rem 0.85rem;font-family:var(--sans);font-size:0.72rem;cursor:pointer;font-weight:500;transition:transform 0.15s}
+.pg-result button:hover{transform:translateY(-1px)}
+
+.pg-controls{display:flex;gap:0.5rem;flex-wrap:wrap;margin-top:0.5rem;justify-content:center}
+.pg-controls button{font-family:var(--sans);font-size:0.72rem;padding:0.45rem 0.85rem;border:1px solid var(--border-2);background:var(--cream);color:var(--text-2);border-radius:5px;cursor:pointer;transition:all 0.15s}
+.pg-controls button:hover{border-color:var(--text-3);color:var(--text)}
+
+.pg-loading{padding:3rem 1rem;text-align:center;font-family:var(--mono);font-size:0.72rem;color:var(--text-3);letter-spacing:0.12em;text-transform:uppercase}
+
+/* Persistent reaction avatar — fixed at top-right of board area, always visible.
+   Bubble appears to the left when there's a reaction. Avatar pulses on new reaction. */
+.pg-avatar-anchor{position:absolute;top:-12px;right:-12px;z-index:5;display:flex;align-items:flex-start;gap:0.65rem;flex-direction:row-reverse;pointer-events:none}
+.pg-react-avatar{width:54px;height:54px;border-radius:50%;border:2px solid var(--border-2);outline:4px solid var(--cream-3);overflow:hidden;flex-shrink:0;background:var(--cream-3);box-shadow:0 4px 14px rgba(26,18,8,0.12);transition:transform 0.4s cubic-bezier(0.2,1.5,0.3,1)}
+.pg-react-avatar.popping{animation:pgAvatarPop 0.55s cubic-bezier(0.2,1.5,0.3,1)}
+@keyframes pgAvatarPop{0%{transform:scale(1)}40%{transform:scale(1.18)}100%{transform:scale(1)}}
+.pg-react-avatar img{width:100%;height:100%;object-fit:cover;display:block}
+.pg-react-avatar .fallback{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-family:var(--display);font-weight:700;color:var(--gold);font-size:1.3rem}
+
+.pg-react-bubble{position:relative;background:var(--cream);border:1px solid var(--border);border-radius:10px;padding:0.55rem 0.8rem;font-family:var(--sans);font-size:0.85rem;color:var(--text);line-height:1.45;box-shadow:0 4px 14px rgba(26,18,8,0.08);margin-top:10px;max-width:240px;animation:pgBubbleIn 0.35s cubic-bezier(0.2,0.8,0.2,1) both}
+.pg-react-bubble.leaving{animation:pgBubbleOut 0.3s ease-in both}
+@keyframes pgBubbleIn{from{opacity:0;transform:translateX(8px)}to{opacity:1;transform:translateX(0)}}
+@keyframes pgBubbleOut{to{opacity:0;transform:translateX(8px)}}
+/* Tail pointing right toward the avatar */
+.pg-react-bubble::before{content:'';position:absolute;top:14px;right:-7px;width:0;height:0;border:6px solid transparent;border-left-color:var(--cream);z-index:1}
+.pg-react-bubble::after{content:'';position:absolute;top:14px;right:-8px;width:0;height:0;border:6px solid transparent;border-left-color:var(--border)}
+
+@media (max-width:920px){
+  .pg-avatar-anchor{position:relative;top:auto;right:auto;flex-direction:column;align-items:flex-start;margin-bottom:0.75rem}
+  .pg-react-bubble{margin-top:0.5rem;max-width:100%}
+  .pg-react-bubble::before,.pg-react-bubble::after{top:-7px;right:auto;left:18px;border:6px solid transparent;border-bottom-color:var(--cream);border-left-color:transparent}
+  .pg-react-bubble::after{border-bottom-color:var(--border);top:-8px}
+}
+
+/* Promotion picker */
+.pg-promo-overlay{position:absolute;inset:0;background:rgba(26,18,8,0.4);z-index:10;display:flex;align-items:center;justify-content:center;border-radius:4px}
+.pg-promo-card{background:var(--cream);border:1px solid var(--gold);border-radius:8px;padding:0.75rem;display:flex;gap:0.4rem;box-shadow:0 8px 30px rgba(26,18,8,0.25)}
+.pg-promo-card button{background:var(--cream-2);border:1px solid var(--border);border-radius:6px;padding:0;cursor:pointer;width:60px;height:60px;display:flex;align-items:center;justify-content:center;transition:all 0.15s}
+.pg-promo-card button:hover{background:var(--gold-light);border-color:var(--gold);transform:translateY(-2px)}
+.pg-promo-card button svg{width:90%;height:90%}
+
+/* Color toggle row */
+.pg-color-toggle{display:flex;gap:0.4rem;align-items:center;justify-content:center;margin-bottom:1rem;font-family:var(--mono);font-size:0.65rem;color:var(--text-3);letter-spacing:0.06em}
+.pg-color-toggle button{font-family:var(--sans);font-size:0.72rem;padding:0.35rem 0.85rem;border:1px solid var(--border-2);background:var(--cream);color:var(--text-3);border-radius:5px;cursor:pointer;transition:all 0.15s;display:inline-flex;align-items:center;gap:0.4rem}
+.pg-color-toggle button:hover{border-color:var(--gold);color:var(--text)}
+.pg-color-toggle button.active{background:var(--text);color:var(--cream);border-color:var(--text)}
+.pg-color-toggle .pg-color-dot{display:inline-block;width:10px;height:10px;border-radius:50%;border:1px solid currentColor}
+.pg-color-toggle .pg-color-dot.white{background:#fffdf7}
+.pg-color-toggle .pg-color-dot.black{background:#1a1208}
+
+/* Move history scoresheet */
+.pg-history{margin-top:1.25rem;padding:0.85rem 1rem;background:var(--cream);border:1px solid var(--border);border-radius:8px;max-height:220px;overflow-y:auto}
+.pg-history-label{font-family:var(--mono);font-size:0.58rem;color:var(--text-4);letter-spacing:0.15em;text-transform:uppercase;margin-bottom:0.5rem}
+.pg-history-empty{font-family:var(--sans);font-size:0.78rem;color:var(--text-4);font-style:italic;padding:0.25rem 0}
+.pg-history-table{display:grid;grid-template-columns:auto 1fr 1fr;column-gap:1rem;row-gap:0.18rem;font-family:var(--mono);font-size:0.74rem;color:var(--text-2);align-items:baseline}
+.pg-history-table .num{color:var(--text-4);text-align:right;font-size:0.65rem}
+.pg-history-table .move{padding:0.06rem 0}
+.h-card{flex:1;background:var(--cream-2);border:1px solid var(--border);border-radius:10px;padding:1rem 1.05rem 0.95rem;cursor:pointer;text-align:left;font-family:inherit;transition:transform 0.2s,border-color 0.2s,box-shadow 0.2s;position:relative;overflow:hidden}
+.h-card:hover{transform:translateY(-3px);border-color:var(--gold);box-shadow:0 6px 22px rgba(26,18,8,0.08)}
+.h-card:hover .h-card-arrow{transform:translateX(3px);opacity:1}
+.h-card-label{font-family:var(--mono);font-size:0.55rem;letter-spacing:0.18em;color:var(--text-4);text-transform:uppercase;margin-bottom:0.45rem}
+.h-card-title{font-family:var(--display);font-size:1.05rem;font-weight:600;color:var(--text);margin-bottom:0.35rem;letter-spacing:-0.01em;display:flex;align-items:center;justify-content:space-between}
+.h-card-arrow{opacity:0.5;transition:transform 0.2s,opacity 0.2s}
+.h-card-desc{font-size:0.7rem;color:var(--text-3);line-height:1.5}
+
+/* message actions (thumbs feedback) */
+.msg-wrap{max-width:80%;display:flex;flex-direction:column;gap:0.3rem}
+.msg.user .msg-wrap{align-items:flex-end}
+.msg.assistant .msg-wrap{align-items:flex-start}
+.msg-actions{display:flex;align-items:center;gap:0.15rem;opacity:0.45;transition:opacity 0.2s;padding:0 0.1rem}
+.msg:hover .msg-actions{opacity:1}
+.msg-rate{background:none;border:none;padding:0.32rem;cursor:pointer;color:var(--text-3);border-radius:5px;display:flex;align-items:center;transition:all 0.15s}
+.msg-rate:hover{background:var(--cream-3);color:var(--text)}
+.msg-rate.up:hover{color:#15803d}
+.msg-rate.down:hover{color:#b91c1c}
+.msg-rated{font-family:var(--mono);font-size:0.6rem;color:var(--text-3);letter-spacing:0.06em;padding:0.2rem 0.1rem;animation:fi 0.3s ease;display:flex;align-items:center;gap:0.3rem}
+.msg-rated svg{flex-shrink:0}
+
+/* markdown rendering inside chat bubbles */
+.bub strong{font-weight:600;color:var(--text)}
+.bub em{font-style:italic}
+.bub code{background:var(--cream-3);padding:0.08em 0.32em;border-radius:3px;font-family:var(--mono);font-size:0.88em;color:var(--text)}
+.bub pre{background:var(--cream-3);padding:0.6rem 0.78rem;border-radius:5px;overflow-x:auto;margin:0.5rem 0;border:1px solid var(--border);max-width:100%}
+.bub pre code{background:none;padding:0;font-size:0.78rem;line-height:1.55;color:var(--text-2)}
+.bub ul,.bub ol{margin:0.35rem 0 0.35rem 1.3rem;padding:0}
+.bub li{margin-bottom:0.18rem;line-height:1.6}
+.bub a{color:var(--gold);text-decoration:underline;text-decoration-color:var(--border-2);text-underline-offset:2px}
+.bub a:hover{color:var(--text);text-decoration-color:var(--gold)}
+
+/* closing slide */
+.closing-slide{width:100vw;height:100%;flex-shrink:0;display:flex;align-items:center;justify-content:center;padding:0 10vw;position:relative;background:var(--cream)}
+.closing-slide::before{content:'fin';position:absolute;font-family:var(--display);font-size:clamp(10rem,22vw,20rem);font-weight:700;color:var(--text);opacity:0.03;letter-spacing:-0.04em;line-height:1;pointer-events:none;user-select:none}
+
 /* RESUME */
 .res-hero{height:38vh;display:flex;align-items:center;justify-content:center;flex-direction:column;text-align:center;background:var(--text);color:var(--cream);position:relative;overflow:hidden}
 .res-hero::before{content:'CV';position:absolute;font-family:var(--display);font-size:22rem;font-weight:600;opacity:0.04;letter-spacing:-0.04em;pointer-events:none;line-height:1}
@@ -176,6 +342,77 @@ const { useState, useEffect, useRef, useCallback } = React;
 const API = "https://askwilli.dev";
 const NAV_H = 58;
 
+// ── Lightweight markdown for chat bubbles ───────────────────────────
+// Supports: **bold**, *italic*, `inline code`, ```code blocks```,
+//           - / 1. lists, http(s) URLs auto-linked, single-newline → <br>
+function renderMarkdown(text) {
+  if (!text) return '';
+  // Stash code (block + inline) so formatting doesn't run inside
+  const stash = [];
+  let s = text.replace(/```([\s\S]*?)```/g, (_, c) => {
+    stash.push({block: true, content: c});
+    return `\u0091CODE${stash.length - 1}\u0091`;
+  });
+  s = s.replace(/`([^`\n]+)`/g, (_, c) => {
+    stash.push({block: false, content: c});
+    return `\u0091CODE${stash.length - 1}\u0091`;
+  });
+  // Escape HTML in everything else
+  const esc = str => str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  s = esc(s);
+  // Bold then italic
+  s = s.replace(/\*\*([^*\n]+)\*\*/g, '<strong>$1</strong>');
+  s = s.replace(/(^|[^*])\*([^*\n]+)\*(?!\*)/g, '$1<em>$2</em>');
+  // Markdown headers (# / ## / ### / ####) → bold standalone line.
+  // The 3B model occasionally emits "#### Section:" mid-response. Render as
+  // a bold heading rather than leaking the raw # characters to users.
+  s = s.replace(/^[ \t]*#{1,6}[ \t]+(.+?)[ \t]*$/gm, '<strong>$1</strong>');
+  // URLs
+  s = s.replace(/(https?:\/\/[^\s<]+[^\s<.,;!?])/g, '<a href="$1" target="_blank" rel="noopener noreferrer">$1</a>');
+  // Lists (line-by-line)
+  // Both numbered (1. 2. 3.) and bulleted (- *) markdown render as <ul> bullets here.
+  // Reason: the 3B model frequently emits "1. ... 1. ... 1." (literal "1." for every item)
+  // or breaks lists across markdown headers, making auto-numbering unreliable.
+  // Bullets sidestep the numbering question entirely.
+  const lines = s.split('\n');
+  const out = [];
+  let inList = false;
+  for (const line of lines) {
+    const ulM = line.match(/^\s*[-*]\s+(.+)$/);
+    const olM = line.match(/^\s*\d+\.\s+(.+)$/);
+    const listItem = ulM ? ulM[1] : (olM ? olM[1] : null);
+    const isBlank = line.trim() === '';
+    if (listItem) {
+      if (!inList) { out.push('<ul>'); inList = true; }
+      out.push(`<li>${listItem}</li>`);
+    } else if (isBlank && inList) {
+      // Blank line inside a list — keep open. Skip the blank.
+      continue;
+    } else {
+      if (inList) { out.push('</ul>'); inList = false; }
+      out.push(line);
+    }
+  }
+  if (inList) out.push('</ul>');
+  // Join with <br/> for non-block, non-empty lines
+  let joined = '';
+  const isBlock = ln => /^\s*<\/?(ul|ol|li|pre)/.test(ln);
+  for (let i = 0; i < out.length; i++) {
+    joined += out[i];
+    if (i < out.length - 1) {
+      if (!isBlock(out[i]) && !isBlock(out[i+1]) && out[i].trim() !== '') joined += '<br/>';
+    }
+  }
+  // Restore code
+  joined = joined.replace(/\u0091CODE(\d+)\u0091/g, (_, idx) => {
+    const it = stash[+idx];
+    return it.block
+      ? `<pre><code>${esc(it.content)}</code></pre>`
+      : `<code>${esc(it.content)}</code>`;
+  });
+  return joined;
+}
+
 // ── Router ───────────────────────────────────────────────────────────
 function useRoute() {
   const [route, setRoute] = useState(location.hash.replace('#','') || '/home');
@@ -192,7 +429,7 @@ function useRoute() {
 
 // ── Nav ──────────────────────────────────────────────────────────────
 function Nav({ route, nav }) {
-  const links = [['/home','Home'],['/chat','Chat'],['/architecture','Architecture'],['/projects','Projects'],['/admin','Admin']];
+  const links = [['/home','Home'],['/chat','Chat'],['/architecture','Architecture'],['/projects','Projects'],['/playground','Playground'],['/admin','Admin']];
   return (
     <nav>
       <div className="nb" onClick={() => nav('/home')}>
@@ -240,6 +477,7 @@ function HomePage({ nav }) {
         letterSpacing:'-0.06em',
         lineHeight:1,
         whiteSpace:'nowrap',
+        animation:'breathe 7s ease-in-out infinite',
       }}>WiLLi</div>
 
       {/* Thin decorative lines */}
@@ -263,7 +501,7 @@ function HomePage({ nav }) {
       }}>
 
         {/* Photo */}
-        <div style={{
+        <div className="h-reveal" style={{
           width:140,height:140,
           borderRadius:'50%',
           border:'2px solid var(--border-2)',
@@ -272,6 +510,7 @@ function HomePage({ nav }) {
           marginBottom:'2rem',
           boxShadow:'0 8px 40px rgba(26,18,8,0.1)',
           flexShrink:0,
+          animationDelay:'200ms',
         }}>
           {!imgError ? (
             <img
@@ -292,13 +531,14 @@ function HomePage({ nav }) {
         </div>
 
         {/* Label */}
-        <div style={{
+        <div className="h-reveal" style={{
           fontFamily:'var(--mono)',fontSize:'0.62rem',
           letterSpacing:'0.2em',color:'var(--text-4)',
           textTransform:'uppercase',marginBottom:'0.75rem',
+          animationDelay:'400ms',
         }}>Will Lim Wen Long</div>
 
-        {/* Heading */}
+        {/* Heading — character-by-character reveal */}
         <h1 style={{
           fontFamily:'var(--display)',
           fontSize:'clamp(2.4rem,6vw,4rem)',
@@ -307,7 +547,11 @@ function HomePage({ nav }) {
           letterSpacing:'-0.03em',
           lineHeight:1.1,
           marginBottom:'0.5rem',
-        }}>Hi, This is WiLLi</h1>
+        }}>
+          {'Hi, This is WiLLi'.split('').map((ch, i) => (
+            <span key={i} className="h-char" style={{animationDelay:`${600 + i*45}ms`}}>{ch}</span>
+          ))}
+        </h1>
 
         {/* Gold divider */}
         <div style={{
@@ -315,25 +559,27 @@ function HomePage({ nav }) {
           background:'var(--gold)',
           borderRadius:2,
           margin:'1.25rem auto',
-          opacity:0.7,
+          animation:'drawIn 0.9s 1450ms ease-out both',
         }}/>
 
         {/* Description */}
-        <p style={{
+        <p className="h-reveal" style={{
           fontSize:'1rem',
           lineHeight:1.85,
           color:'var(--text-2)',
           marginBottom:'1rem',
           fontWeight:400,
+          animationDelay:'1550ms',
         }}>
           WiLLi is a living archive of my journey.
           <span style={{ display: 'block' }}>It is a digital piece of me trained on my life story.</span>
         </p>
-        <p style={{
+        <p className="h-reveal" style={{
           fontSize:'0.9rem',
           lineHeight:1.85,
           color:'var(--text-3)',
           marginBottom:'2.5rem',
+          animationDelay:'1700ms',
         }}>
           Chat with a model that speaks as me. Explore the real-time learning
           pipeline that powers it. And, if it sparks something, I hope you build
@@ -344,6 +590,7 @@ function HomePage({ nav }) {
         {/* CTA */}
         <button
           onClick={() => nav('/chat')}
+          className="h-reveal"
           style={{
             display:'inline-flex',alignItems:'center',gap:'0.6rem',
             background:'var(--text)',color:'var(--cream)',
@@ -355,6 +602,7 @@ function HomePage({ nav }) {
             transition:'all 0.2s',
             boxShadow:'0 4px 20px rgba(26,18,8,0.15)',
             marginBottom:'3rem',
+            animationDelay:'1900ms',
           }}
           onMouseEnter={e=>{e.currentTarget.style.transform='translateY(-2px)';e.currentTarget.style.boxShadow='0 8px 30px rgba(26,18,8,0.2)';}}
           onMouseLeave={e=>{e.currentTarget.style.transform='translateY(0)';e.currentTarget.style.boxShadow='0 4px 20px rgba(26,18,8,0.15)';}}
@@ -366,39 +614,97 @@ function HomePage({ nav }) {
           </svg>
         </button>
 
-        {/* Secondary links */}
-        <div style={{
-          display:'flex',alignItems:'center',gap:'0.5rem',
-          fontFamily:'var(--mono)',fontSize:'0.62rem',
-          color:'var(--text-4)',letterSpacing:'0.08em',
+        {/* Preview cards */}
+        <div className="h-reveal" style={{
+          display:'flex',gap:'0.85rem',
+          width:'100%',maxWidth:480,
+          marginBottom:'1.25rem',
+          animationDelay:'2100ms',
         }}>
-          <button onClick={()=>nav('/architecture')} style={{background:'none',border:'none',cursor:'pointer',fontFamily:'var(--mono)',fontSize:'0.62rem',color:'var(--text-4)',letterSpacing:'0.08em',padding:'0.2rem 0.4rem',borderRadius:4,transition:'color 0.15s'}}
-            onMouseEnter={e=>e.currentTarget.style.color='var(--text-2)'}
-            onMouseLeave={e=>e.currentTarget.style.color='var(--text-4)'}
-          >Architecture</button>
-          <span style={{opacity:0.4}}>·</span>
-          <button onClick={()=>nav('/projects')} style={{background:'none',border:'none',cursor:'pointer',fontFamily:'var(--mono)',fontSize:'0.62rem',color:'var(--text-4)',letterSpacing:'0.08em',padding:'0.2rem 0.4rem',borderRadius:4,transition:'color 0.15s'}}
-            onMouseEnter={e=>e.currentTarget.style.color='var(--text-2)'}
-            onMouseLeave={e=>e.currentTarget.style.color='var(--text-4)'}
-          >Projects</button>
-          <span style={{opacity:0.4}}>·</span>
-          <button onClick={()=>nav('/admin')} style={{background:'none',border:'none',cursor:'pointer',fontFamily:'var(--mono)',fontSize:'0.62rem',color:'var(--text-4)',letterSpacing:'0.08em',padding:'0.2rem 0.4rem',borderRadius:4,transition:'color 0.15s'}}
-            onMouseEnter={e=>e.currentTarget.style.color='var(--text-2)'}
-            onMouseLeave={e=>e.currentTarget.style.color='var(--text-4)'}
-          >Admin</button>
+          <button onClick={()=>nav('/architecture')} className="h-card">
+            <div className="h-card-label">Pipeline</div>
+            <div className="h-card-title">
+              Architecture
+              <span className="h-card-arrow">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+              </span>
+            </div>
+            <div className="h-card-desc">Scroll-zoom into the live RLHF system that powers WiLLi.</div>
+          </button>
+          <button onClick={()=>nav('/projects')} className="h-card">
+            <div className="h-card-label">Works</div>
+            <div className="h-card-title">
+              Projects
+              <span className="h-card-arrow">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+              </span>
+            </div>
+            <div className="h-card-desc">Graph ML, Bayesian methods, Computer Vision, and Time Series.</div>
+          </button>
         </div>
+
+        {/* Admin link */}
+        <button onClick={()=>nav('/admin')} className="h-reveal" style={{
+          background:'none',border:'none',cursor:'pointer',
+          fontFamily:'var(--mono)',fontSize:'0.6rem',
+          color:'var(--text-4)',letterSpacing:'0.12em',
+          padding:'0.25rem 0.5rem',borderRadius:4,
+          transition:'color 0.15s',textTransform:'uppercase',
+          animationDelay:'2300ms',
+        }}
+          onMouseEnter={e=>e.currentTarget.style.color='var(--text-2)'}
+          onMouseLeave={e=>e.currentTarget.style.color='var(--text-4)'}
+        >Admin</button>
 
       </div>
     </div>
   );
 }
 
+// ── Sparkline (mini inline chart) ───────────────────────────────────
+// Renders a thin SVG line chart for an array of numbers. Auto-scales Y axis.
+// Hovering points shows a value tooltip above the chart.
+function Sparkline({data, label, color='#c8a84b', formatter=v=>String(v)}) {
+  const [hover, setHover] = useState(null);
+  const W = 240, H = 38, P = 4;
+  const points = (data || []).filter(v => v != null && Number.isFinite(v));
+  if (points.length < 2) return null;
+  const min = Math.min(...points), max = Math.max(...points);
+  const range = max - min || 1;
+  const xAt = i => P + (i / (points.length - 1)) * (W - 2 * P);
+  const yAt = v => H - P - ((v - min) / range) * (H - 2 * P);
+  const path = points.map((v,i) => `${i===0?'M':'L'}${xAt(i).toFixed(1)},${yAt(v).toFixed(1)}`).join(' ');
+  const lastVal = points[points.length - 1];
+  return (
+    <div style={{marginBottom:'0.55rem'}}>
+      <div style={{display:'flex',justifyContent:'space-between',alignItems:'baseline',marginBottom:'0.2rem'}}>
+        <span style={{fontFamily:'var(--mono)',fontSize:'0.58rem',color:'var(--text-3)',letterSpacing:'0.08em'}}>{label}</span>
+        <span style={{fontFamily:'var(--mono)',fontSize:'0.6rem',color:'var(--text)',fontWeight:500}}>
+          {hover != null ? formatter(points[hover]) : formatter(lastVal)}
+        </span>
+      </div>
+      <svg viewBox={`0 0 ${W} ${H}`} width="100%" height={H} style={{display:'block'}}>
+        <path d={path} fill="none" stroke={color} strokeWidth="1.4" strokeLinejoin="round" strokeLinecap="round"/>
+        {points.map((v,i) => (
+          <circle key={i} cx={xAt(i)} cy={yAt(v)} r={hover===i?2.4:1.4}
+            fill={hover===i?color:'#fffdf7'} stroke={color} strokeWidth="1"
+            onMouseEnter={()=>setHover(i)} onMouseLeave={()=>setHover(null)}
+            style={{cursor:'pointer',transition:'r 0.1s'}}
+          />
+        ))}
+      </svg>
+    </div>
+  );
+}
+
 // ── Chat ─────────────────────────────────────────────────────────────
+const INTRO_MSGS = [
+  {role:'assistant',content:"Hi! I'm WiLLi, Will's AI clone. Instead of reading a bio, why not just have a chat? I can tell you about his journey.", intro:true},
+  {role:'assistant',content:"I'm built on a live RLHF pipeline, so the more we talk, the more 'Will' I become.", intro:true},
+];
+
 function ChatPage({adminAuthed, onLogout}) {
-  const [msgs, setMsgs] = useState([
-    {role:'assistant',content:"Hi! I'm WiLLi, Will's AI clone. Instead of reading a bio, why not just have a chat? I can tell you about his journey."},
-    {role:'assistant',content:"I'm built on a live RLHF pipeline, so the more we talk, the more 'Will' I become."},
-  ]);
+  const [msgs, setMsgs] = useState(INTRO_MSGS);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [showContact, setShowContact] = useState(false);
@@ -408,18 +714,29 @@ function ChatPage({adminAuthed, onLogout}) {
   const [toast, setToast] = useState(null);
   const [metrics, setMetrics] = useState(null);
   const [logs, setLogs] = useState('No training events yet.');
+  const [pending, setPending] = useState([]);
+  const [corrections, setCorrections] = useState({});
+  const [checkpoints, setCheckpoints] = useState([]);
+  const [activeCp, setActiveCp] = useState(null);
+  const [history, setHistory] = useState([]);
   const bottomRef = useRef(null);
   useEffect(() => { bottomRef.current?.scrollIntoView({behavior:'smooth'}); }, [msgs,loading]);
-  useEffect(() => { fetch(`${API}/ping_visit`).catch(()=>{}); }, []);
+  useEffect(() => { fetch(`${API}/ping_visit`, {method:'POST'}).catch(()=>{}); }, []);
 
   useEffect(() => {
     if (!adminAuthed) return;
-    const poll = setInterval(() => {
+    const fetchAll = () => {
       fetch(`${API}/admin/metrics`).then(r=>r.json()).then(setMetrics).catch(()=>{});
       fetch(`${API}/admin/logs`).then(r=>r.json()).then(d=>setLogs(d.logs||'No logs.')).catch(()=>{});
-    }, 4000);
-    fetch(`${API}/admin/metrics`).then(r=>r.json()).then(setMetrics).catch(()=>{});
-    fetch(`${API}/admin/logs`).then(r=>r.json()).then(d=>setLogs(d.logs||'No logs.')).catch(()=>{});
+      fetch(`${API}/admin/feedback/list`).then(r=>r.json()).then(d=>setPending(d.items||[])).catch(()=>{});
+      fetch(`${API}/admin/checkpoints`).then(r=>r.json()).then(d=>{
+        setCheckpoints(d.items||[]);
+        setActiveCp(d.active||null);
+      }).catch(()=>{});
+      fetch(`${API}/admin/history?limit=30`).then(r=>r.json()).then(d=>setHistory(d.items||[])).catch(()=>{});
+    };
+    fetchAll();
+    const poll = setInterval(fetchAll, 4000);
     return () => clearInterval(poll);
   }, [adminAuthed]);
 
@@ -431,20 +748,80 @@ function ChatPage({adminAuthed, onLogout}) {
       .then(r=>r.json()).then(d=>{showToast('ok',d.msg||'Pushed');setCorrection('');}).catch(()=>showToast('err','Failed'));
   };
 
-  const send = useCallback(async () => {
-    if (!input.trim()||loading) return;
-    const q=input.trim(); setInput('');
+  const relativeTime = (iso) => {
+    if (!iso) return '';
+    const diff = Date.now() - new Date(iso).getTime();
+    if (isNaN(diff)) return '';
+    const m = Math.floor(diff / 60000);
+    if (m < 1) return 'just now';
+    if (m < 60) return `${m}m ago`;
+    const h = Math.floor(m / 60);
+    if (h < 24) return `${h}h ago`;
+    return `${Math.floor(h/24)}d ago`;
+  };
+
+  const promotePending = (id) => {
+    const correction = (corrections[id] || '').trim();
+    // Optimistic remove
+    setPending(prev => prev.filter(p => p.id !== id));
+    setCorrections(prev => { const next = {...prev}; delete next[id]; return next; });
+    fetch(`${API}/admin/feedback/promote`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id,correction})})
+      .then(r=>r.json())
+      .then(d=>showToast(d.ok?'ok':'err', d.msg || (d.ok?'Promoted':'Failed')))
+      .catch(()=>showToast('err','Failed'));
+  };
+
+  const dismissPending = (id) => {
+    setPending(prev => prev.filter(p => p.id !== id));
+    setCorrections(prev => { const next = {...prev}; delete next[id]; return next; });
+    fetch(`${API}/admin/feedback/dismiss`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id})})
+      .catch(()=>{});
+  };
+
+  const activateCheckpoint = (version) => {
+    if (version === activeCp) return;
+    if (!confirm(`Roll the active adapter to ${version}? The model will reload.`)) return;
+    setActiveCp(version); // optimistic
+    fetch(`${API}/admin/checkpoints/activate`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({version})})
+      .then(r=>r.json())
+      .then(d=>showToast(d.ok?'ok':'err', d.msg || (d.ok?'Activated':'Failed')))
+      .catch(()=>showToast('err','Failed'));
+  };
+
+  const send = useCallback(async (overrideText) => {
+    const raw = overrideText !== undefined ? overrideText : input;
+    if (!raw.trim() || loading) return;
+    const q = raw.trim();
+    if (overrideText === undefined) setInput('');
+
+    // Build the messages to ship: real turns only (skip intros & error/system entries),
+    // plus the new user message. Trim to last 3 turns to keep latency bounded — at this size
+    // the model gets enough context for follow-ups without paying full prefill cost each turn.
+    const realPrior = msgs
+      .filter(m => !m.intro && (m.role === 'user' || m.role === 'assistant') && m.content && !m.streaming)
+      .slice(-3);
+    const payloadMessages = [...realPrior, {role: 'user', content: q}].slice(-3);
+
     setMsgs(prev=>[...prev,{role:'user',content:q}]);
     setLoading(true);
     try {
-      const res=await fetch(`${API}/chat`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({question:q})});
+      const res=await fetch(`${API}/chat`,{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({messages: payloadMessages.map(m => ({role: m.role, content: m.content}))}),
+      });
       const reader=res.body.getReader(); const dec=new TextDecoder(); let ans='';
       setMsgs(prev=>[...prev,{role:'assistant',content:'',streaming:true}]);
       while(true){const{done,value}=await reader.read();if(done)break;ans+=dec.decode(value,{stream:true});setMsgs(prev=>{const m=[...prev];m[m.length-1]={role:'assistant',content:ans,streaming:true};return m;});}
-      setMsgs(prev=>{const m=[...prev];m[m.length-1]={role:'assistant',content:ans};return m;});
+      setMsgs(prev=>{const m=[...prev];m[m.length-1]={role:'assistant',content:ans,feedbackable:true};return m;});
     } catch { setMsgs(prev=>[...prev,{role:'assistant',content:"WiLLi is busy right now — try again in a moment."}]); }
     finally { setLoading(false); }
-  },[input,loading]);
+  },[input,loading,msgs]);
+
+  const resetChat = () => {
+    setMsgs(INTRO_MSGS);
+    setInput('');
+  };
 
   const sendContact = async () => {
     if(!contact.trim()) return;
@@ -452,13 +829,44 @@ function ChatPage({adminAuthed, onLogout}) {
     setContactSent(true);setContact('');
   };
 
+  const sendFeedback = (idx, vote) => {
+    setMsgs(prev => {
+      if (!prev[idx] || prev[idx].reaction) return prev;
+      const question = idx > 0 && prev[idx-1]?.role === 'user' ? prev[idx-1].content : '';
+      const answer = prev[idx].content;
+      fetch(`${API}/feedback`, {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({vote, question, answer}),
+      }).catch(()=>{});
+      return prev.map((m,i) => i === idx ? {...m, reaction: vote} : m);
+    });
+  };
+
   return (
     <div className="page" style={{display:'flex',height:'calc(100vh - var(--nav-h))'}}>
       {/* Chat column */}
       <div className="cl" style={{flex:1,minWidth:0,maxWidth: adminAuthed ? 'none' : 720, margin:'0 auto'}}>
-        <div className="ch">
-          <div className="ey">Will Lim Wen Long · Data Scientist</div>
-          <h1>Chat with WiLLi</h1>
+        <div className="ch" style={{display:'flex',alignItems:'flex-end',justifyContent:'space-between',gap:'1rem'}}>
+          <div>
+            <div className="ey">Will Lim Wen Long · Data Scientist</div>
+            <h1>Chat with WiLLi</h1>
+          </div>
+          {msgs.some(m => !m.intro) && (
+            <button onClick={resetChat} title="Start a new conversation" style={{
+              background:'none',border:'1px solid var(--border-2)',borderRadius:5,
+              padding:'0.4rem 0.7rem',fontSize:'0.7rem',fontFamily:'var(--sans)',
+              color:'var(--text-3)',cursor:'pointer',
+              display:'inline-flex',alignItems:'center',gap:'0.35rem',
+              transition:'all 0.15s',whiteSpace:'nowrap',
+            }}
+              onMouseEnter={e=>{e.currentTarget.style.borderColor='var(--gold)';e.currentTarget.style.color='var(--text)';}}
+              onMouseLeave={e=>{e.currentTarget.style.borderColor='var(--border-2)';e.currentTarget.style.color='var(--text-3)';}}
+            >
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M3 12a9 9 0 1 0 3-6.7"/><polyline points="3 4 3 10 9 10"/></svg>
+              New chat
+            </button>
+          )}
         </div>
         <div className="is">
           WiLLi runs locally via Cloudflare Tunnel. If slow, refresh in a minute.{' '}
@@ -484,9 +892,54 @@ function ChatPage({adminAuthed, onLogout}) {
           {msgs.map((m,i)=>(
             <div key={i} className={`msg ${m.role}`}>
               <div className="av">{m.role==='assistant'?'💬':'💭'}</div>
-              <div className="bub">{m.content}{m.streaming&&<span style={{opacity:0.35}}>▋</span>}</div>
+              <div className="msg-wrap">
+                <div className="bub">
+                  {m.streaming && !m.content ? (
+                    <div className="td"><span/><span/><span/></div>
+                  ) : m.role==='assistant' ? (
+                    <span dangerouslySetInnerHTML={{__html:renderMarkdown(m.content)}}/>
+                  ) : (
+                    m.content
+                  )}
+                  {m.streaming && m.content && <span style={{opacity:0.35}}>▋</span>}
+                </div>
+                {m.feedbackable && !m.streaming && (
+                  <div className="msg-actions">
+                    {!m.reaction ? (
+                      <>
+                        <button className="msg-rate up" onClick={()=>sendFeedback(i,'up')} aria-label="Helpful">
+                          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={{display:'block'}}><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3z"/><path d="M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg>
+                        </button>
+                        <button className="msg-rate down" onClick={()=>sendFeedback(i,'down')} aria-label="Not helpful">
+                          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={{display:'block',transform:'rotate(180deg)'}}><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3z"/><path d="M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg>
+                        </button>
+                      </>
+                    ) : (
+                      <span className="msg-rated">
+                        <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" style={{color:m.reaction==='up'?'#15803d':'#b91c1c',transform:m.reaction==='down'?'rotate(180deg)':'none'}}><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3z"/></svg>
+                        {m.reaction==='up' ? 'Thanks — noted.' : "Thanks — I'll learn from this."}
+                      </span>
+                    )}
+                  </div>
+                )}
+              </div>
             </div>
           ))}
+          {!msgs.some(m=>m.role==='user') && !loading && (
+            <>
+              <div className="chip-label">Try asking</div>
+              <div className="chip-row">
+                {[
+                  "How did you get into data science?",
+                  "What's WiLLi exactly?",
+                  "Tell me about a project you're proud of",
+                  "What do you do for fun?",
+                ].map((q,i)=>(
+                  <button key={q} className="chip" style={{animationDelay:`${i*60}ms`}} onClick={()=>send(q)} disabled={loading}>{q}</button>
+                ))}
+              </div>
+            </>
+          )}
           {loading&&msgs[msgs.length-1]?.role!=='assistant'&&(
             <div className="msg assistant">
               <div className="av">💬</div>
@@ -535,6 +988,60 @@ function ChatPage({adminAuthed, onLogout}) {
             {toast&&<div className={`toast ${toast.type}`} style={{fontSize:'0.68rem'}}>{toast.msg}</div>}
           </div>
 
+          {/* Pending public feedback */}
+          {pending.length > 0 && (
+            <div style={{marginBottom:'1rem'}}>
+              <div style={{display:'flex',justifyContent:'space-between',alignItems:'baseline',marginBottom:'0.5rem'}}>
+                <div style={{fontSize:'0.68rem',fontWeight:500,color:'var(--text-2)'}}>Pending from visitors</div>
+                <span style={{fontFamily:'var(--mono)',fontSize:'0.6rem',color:'var(--text-4)'}}>{pending.length}</span>
+              </div>
+              {pending.map(item => (
+                <div key={item.id} style={{
+                  background:'var(--cream)',
+                  border:`1px solid ${item.vote==='up'?'#bbf7d0':'#fecaca'}`,
+                  borderRadius:6,
+                  padding:'0.55rem 0.65rem',
+                  marginBottom:'0.5rem',
+                }}>
+                  <div style={{display:'flex',alignItems:'center',gap:'0.4rem',marginBottom:'0.4rem'}}>
+                    <span style={{
+                      display:'inline-flex',alignItems:'center',justifyContent:'center',
+                      width:18,height:18,borderRadius:'50%',
+                      background:item.vote==='up'?'#f0fdf4':'#fef2f2',
+                      color:item.vote==='up'?'#15803d':'#b91c1c',
+                    }}>
+                      <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor" style={{transform:item.vote==='down'?'rotate(180deg)':'none'}}><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3z"/></svg>
+                    </span>
+                    <span style={{fontFamily:'var(--mono)',fontSize:'0.55rem',color:'var(--text-4)',letterSpacing:'0.04em'}}>{relativeTime(item.ts)}</span>
+                  </div>
+                  {item.question && (
+                    <div style={{fontSize:'0.65rem',color:'var(--text-2)',marginBottom:'0.25rem',fontStyle:'italic',lineHeight:1.4,maxHeight:'2.8em',overflow:'hidden'}}>
+                      "{item.question}"
+                    </div>
+                  )}
+                  <div style={{fontSize:'0.62rem',color:'var(--text-3)',marginBottom:'0.45rem',lineHeight:1.45,maxHeight:'4.4em',overflow:'hidden'}}>
+                    {item.answer}
+                  </div>
+                  <input className="fi"
+                    style={{fontSize:'0.62rem',padding:'0.32rem 0.5rem',marginBottom:'0.32rem'}}
+                    placeholder={item.vote==='up' ? "Optional — leave empty to log as preferred" : "Better answer in Will's voice…"}
+                    value={corrections[item.id] || ''}
+                    onChange={e=>setCorrections(prev=>({...prev,[item.id]:e.target.value}))}
+                    onKeyDown={e=>{if(e.key==='Enter')promotePending(item.id);}}
+                  />
+                  <div style={{display:'flex',gap:'0.32rem'}}>
+                    <button onClick={()=>promotePending(item.id)} className="bs" style={{flex:1,fontSize:'0.62rem',padding:'0.32rem 0.5rem'}}>
+                      {(corrections[item.id]||'').trim() ? 'Promote + correct' : 'Promote as preferred'}
+                    </button>
+                    <button onClick={()=>dismissPending(item.id)} className="bs" style={{fontSize:'0.62rem',padding:'0.32rem 0.5rem',color:'var(--text-3)'}}>
+                      Dismiss
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
           {/* Metrics */}
           {metrics&&Object.keys(metrics).length>0&&(
             <div style={{marginBottom:'1rem'}}>
@@ -555,6 +1062,67 @@ function ChatPage({adminAuthed, onLogout}) {
                     </span>
                   </div>
                 ))}
+              </div>
+            </div>
+          )}
+
+          {/* Trends — sparklines over recent training events */}
+          {history.length > 1 && (
+            <div style={{marginBottom:'1rem'}}>
+              <div style={{display:'flex',justifyContent:'space-between',alignItems:'baseline',marginBottom:'0.5rem'}}>
+                <div style={{fontSize:'0.68rem',fontWeight:500,color:'var(--text-2)'}}>Training Trends</div>
+                <span style={{fontFamily:'var(--mono)',fontSize:'0.55rem',color:'var(--text-4)'}}>last {history.length}</span>
+              </div>
+              <Sparkline data={history.map(h=>h.loss)} label="Loss" color="#c87878" formatter={v=>v.toFixed(3)}/>
+              <Sparkline data={history.map(h=>h.rewards_margin)} label="Reward Margin" color="#78a896" formatter={v=>v.toFixed(2)}/>
+            </div>
+          )}
+
+          {/* Adapter Checkpoints */}
+          {checkpoints.length > 0 && (
+            <div style={{marginBottom:'1rem'}}>
+              <div style={{display:'flex',justifyContent:'space-between',alignItems:'baseline',marginBottom:'0.5rem'}}>
+                <div style={{fontSize:'0.68rem',fontWeight:500,color:'var(--text-2)'}}>Adapter Checkpoints</div>
+                <span style={{fontFamily:'var(--mono)',fontSize:'0.55rem',color:'var(--text-4)'}}>{checkpoints.length}</span>
+              </div>
+              <div style={{display:'flex',flexDirection:'column'}}>
+                {checkpoints.slice(0,10).map(cp => {
+                  const isActive = cp.version === activeCp;
+                  return (
+                    <div key={cp.version} style={{
+                      display:'flex',alignItems:'center',justifyContent:'space-between',
+                      padding:'0.4rem 0.55rem',
+                      background: isActive ? 'var(--gold-light)' : 'var(--cream)',
+                      border: `1px solid ${isActive ? 'var(--gold)' : 'var(--border)'}`,
+                      borderRadius:5,
+                      marginBottom:'0.3rem',
+                    }}>
+                      <div style={{display:'flex',alignItems:'center',gap:'0.45rem',minWidth:0,flex:1}}>
+                        <span style={{
+                          width:6,height:6,borderRadius:'50%',
+                          background: isActive ? 'var(--gold)' : 'var(--border-2)',
+                          flexShrink:0,
+                        }}/>
+                        <span style={{fontFamily:'var(--mono)',fontSize:'0.66rem',fontWeight:500,color:'var(--text)'}}>{cp.version}</span>
+                        <span style={{fontFamily:'var(--mono)',fontSize:'0.58rem',color:'var(--text-4)',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>
+                          {relativeTime(cp.timestamp)}
+                        </span>
+                      </div>
+                      {isActive ? (
+                        <span style={{fontFamily:'var(--mono)',fontSize:'0.55rem',color:'var(--gold)',letterSpacing:'0.1em',fontWeight:600}}>ACTIVE</span>
+                      ) : (
+                        <button onClick={()=>activateCheckpoint(cp.version)} style={{
+                          background:'none',border:'1px solid var(--border-2)',borderRadius:4,
+                          padding:'0.18rem 0.5rem',fontSize:'0.6rem',color:'var(--text-3)',
+                          fontFamily:'var(--sans)',cursor:'pointer',transition:'all 0.15s',
+                        }}
+                          onMouseEnter={e=>{e.currentTarget.style.borderColor='var(--gold)';e.currentTarget.style.color='var(--text)';}}
+                          onMouseLeave={e=>{e.currentTarget.style.borderColor='var(--border-2)';e.currentTarget.style.color='var(--text-3)';}}
+                        >Activate</button>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             </div>
           )}
@@ -715,12 +1283,16 @@ function ArchitecturePage() {
           height:'calc(100vh - var(--nav-h))',
           display:'flex',background:'var(--cream)',overflow:'hidden'
         }}>
+          {/* Progress bar */}
+          <div style={{position:'absolute',top:0,left:0,right:0,height:'2px',background:'var(--border)',zIndex:10}}>
+            <div style={{height:'100%',background:'var(--gold)',width:`${(activeIdx/(ARCH_SECTIONS.length-1))*100}%`,transition:'width 0.4s ease',opacity:0.7}}/>
+          </div>
 
           {/* LEFT — text */}
           <div style={{
             width:'36%',padding:'2.5rem 2rem',
             display:'flex',flexDirection:'column',justifyContent:'center',
-            borderRight:'1px solid #2e2318',position:'relative',
+            borderRight:'1px solid var(--border)',position:'relative',
           }}>
             <div style={{fontFamily:'var(--mono)',fontSize:'0.55rem',color:'var(--text-4)',letterSpacing:'0.2em',marginBottom:'1.25rem'}}>
               {String(activeIdx+1).padStart(2,'0')} / {String(ARCH_SECTIONS.length).padStart(2,'0')}
@@ -780,6 +1352,9 @@ function ArchitecturePage() {
                 <pattern id="ag" width="20" height="20" patternUnits="userSpaceOnUse">
                   <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#ede5cc" strokeWidth="0.5"/>
                 </pattern>
+                <filter id="adapterHalo" x="-50%" y="-50%" width="200%" height="200%">
+                  <feGaussianBlur stdDeviation="3"/>
+                </filter>
                 {EDGES.map((e,i)=>(
                   <marker key={i} id={`am${i}`} markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
                     <path d="M0,0 L0,6 L6,3 z" fill={e.color} opacity="0.75"/>
@@ -815,8 +1390,16 @@ function ArchitecturePage() {
                 const cx2=x+NW/2;
                 const isActive=n.id===activeNodeId;
                 const isGhost=activeNodeId&&!isActive;
+                const isAdapter=n.id==='adapter';
                 return (
-                  <g key={n.id} onClick={()=>activeIdx===0&&scrollToSection(n.id)} style={{cursor:activeIdx===0?'pointer':'default',pointerEvents:'all'}}>
+                  <g key={n.id} onClick={()=>scrollToSection(n.id)} style={{cursor:'pointer',pointerEvents:'all'}}>
+                    {isAdapter && (
+                      <ellipse cx={cx2} cy={y+NH/2} rx={NW*0.55} ry={NH*0.65}
+                        fill={n.color} opacity={isGhost?0.04:0.10}
+                        filter="url(#adapterHalo)"
+                        style={{transition:'opacity 0.6s'}}
+                      />
+                    )}
                     {isActive&&<rect x={x-7} y={y-7} width={NW+14} height={NH+14} rx="11" fill={n.color} opacity="0.12"/>}
                     <rect x={x} y={y} width={NW} height={NH} rx="6"
                       fill={isActive?'#f0e8d8':'#fdf9ee'}
@@ -840,6 +1423,17 @@ function ArchitecturePage() {
                       style={{transition:'opacity 0.6s'}}>
                       {n.sub}
                     </text>
+                    {isAdapter && (
+                      <g style={{transition:'opacity 0.6s'}} opacity={isGhost?0.3:1}>
+                        <rect x={x+NW-44} y={y-9} width="42" height="14" rx="3"
+                          fill="#c8a84b" stroke="#c8a84b" strokeWidth="0.5"/>
+                        <text x={x+NW-23} y={y+0.5} textAnchor="middle"
+                          fontSize="6.5" fontWeight="600" fill="#fffdf7"
+                          fontFamily="var(--mono)" letterSpacing="0.15em">
+                          OUTPUT
+                        </text>
+                      </g>
+                    )}
 
                   </g>
                 );
@@ -866,15 +1460,84 @@ const projects = [
   {num:'05',title:'Risk & Fraud',sub:'Anomaly Detection Pipeline',body:"End-to-end fraud detection on severely imbalanced financial data. Ensemble of LightGBM, XGBoost, CatBoost, AdaBoost with ADASYN resampling and Bayesian Optimization with automated early-stopping callbacks.",pills:['LightGBM','XGBoost','CatBoost','ADASYN','BayesSearchCV','scikit-learn','Plotly'],accent:'#b896c8',github:'https://github.com/wenlong96/risk_fraud_anomaly'},
   {num:'06',title:'Time Series',sub:'High-Performance Forecasting',body:"Scalable forecasting for daily sales across 50+ SKUs. Deep LSTM with PACF autocorrelation analysis. LightGBM with rolling-window lag features. Parallelized training across cores with doParallel and foreach.",pills:['LSTM','LightGBM','ARIMAX','Keras','TensorFlow','R','doParallel','imputeTS','mlr3'],accent:'#78aec8',github:'https://github.com/wenlong96/lgbm_time_series'},
   {num:'07',title:'Q&M Dental',sub:'Relational Database Design',body:"Scheduling and inventory database for Singapore's largest private dental group. ERD normalized to 3NF with MySQL schemas and cascading foreign keys for real-time multi-branch room and equipment scheduling.",pills:['MySQL','ERD','3NF Normalization','SQL','Referential Integrity','Database Design'],accent:'#a098c8',github:'https://github.com/wenlong96/data_management'},
+  {num:'08',title:'Connect',sub:'End of reel',isClosing:true,accent:'#c8a84b'},
 ];
 
-function ProjectsPage() {
+function ProjectsPage({nav}) {
   const containerRef = useRef(null);
   const stripRef = useRef(null);
   const offsetRef = useRef(0);
   const targetOffset = useRef(0);
   const rafRef = useRef(null);
   const [activeIdx, setActiveIdx] = useState(0);
+
+  // Stylized project glyphs — each renders in the project's accent color
+  const projectIcons = {
+    '01': (c) => (
+      <svg viewBox="0 0 60 60" width="40" height="40" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="30" cy="30" r="20" fill="none" stroke={c} strokeWidth="1.4" strokeDasharray="3,2" opacity="0.55"/>
+        <circle cx="30" cy="30" r="7" fill={c} fillOpacity="0.2" stroke={c} strokeWidth="1.5"/>
+        <path d="M 49 27 L 49 33 L 44 30 Z" fill={c}/>
+      </svg>
+    ),
+    '02': (c) => (
+      <svg viewBox="0 0 60 60" width="40" height="40" xmlns="http://www.w3.org/2000/svg">
+        <line x1="14" y1="20" x2="46" y2="20" stroke={c} strokeWidth="1.4" opacity="0.5"/>
+        <line x1="14" y1="20" x2="30" y2="44" stroke={c} strokeWidth="1.4" opacity="0.5"/>
+        <line x1="46" y1="20" x2="30" y2="44" stroke={c} strokeWidth="1.4" opacity="0.5"/>
+        <circle cx="14" cy="20" r="5" fill={c}/>
+        <circle cx="46" cy="20" r="5" fill={c}/>
+        <circle cx="30" cy="44" r="5" fill={c}/>
+      </svg>
+    ),
+    '03': (c) => (
+      <svg viewBox="0 0 60 60" width="40" height="40" xmlns="http://www.w3.org/2000/svg">
+        <line x1="30" y1="14" x2="18" y2="30" stroke={c} strokeWidth="1.3" opacity="0.55"/>
+        <line x1="30" y1="14" x2="42" y2="30" stroke={c} strokeWidth="1.3" opacity="0.55"/>
+        <line x1="18" y1="30" x2="30" y2="46" stroke={c} strokeWidth="1.3" opacity="0.55"/>
+        <line x1="42" y1="30" x2="30" y2="46" stroke={c} strokeWidth="1.3" opacity="0.55"/>
+        <circle cx="30" cy="14" r="4" fill={c}/>
+        <circle cx="18" cy="30" r="4" fill={c}/>
+        <circle cx="42" cy="30" r="4" fill={c}/>
+        <circle cx="30" cy="46" r="4" fill={c}/>
+      </svg>
+    ),
+    '04': (c) => (
+      <svg viewBox="0 0 60 60" width="40" height="40" xmlns="http://www.w3.org/2000/svg">
+        <rect x="13" y="40" width="6" height="10" rx="1" fill={c} opacity="0.4"/>
+        <rect x="22" y="32" width="6" height="18" rx="1" fill={c} opacity="0.58"/>
+        <rect x="31" y="22" width="6" height="28" rx="1" fill={c} opacity="0.78"/>
+        <rect x="40" y="14" width="6" height="36" rx="1" fill={c}/>
+      </svg>
+    ),
+    '05': (c) => (
+      <svg viewBox="0 0 60 60" width="40" height="40" xmlns="http://www.w3.org/2000/svg">
+        <path d="M 30 9 L 47 17 L 47 31 Q 47 43 30 51 Q 13 43 13 31 L 13 17 Z" fill="none" stroke={c} strokeWidth="1.5" opacity="0.6"/>
+        <circle cx="30" cy="30" r="4" fill={c}/>
+        <circle cx="30" cy="30" r="9" fill="none" stroke={c} strokeWidth="1" opacity="0.45"/>
+      </svg>
+    ),
+    '06': (c) => (
+      <svg viewBox="0 0 60 60" width="40" height="40" xmlns="http://www.w3.org/2000/svg">
+        <line x1="9" y1="48" x2="51" y2="48" stroke={c} strokeWidth="1" opacity="0.35"/>
+        <polyline points="10,40 18,30 25,38 33,18 40,28 50,16" fill="none" stroke={c} strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"/>
+        <circle cx="33" cy="18" r="2.2" fill={c}/>
+        <circle cx="50" cy="16" r="2.2" fill={c}/>
+      </svg>
+    ),
+    '07': (c) => (
+      <svg viewBox="0 0 60 60" width="40" height="40" xmlns="http://www.w3.org/2000/svg">
+        <ellipse cx="21" cy="16" rx="8" ry="2.8" fill="none" stroke={c} strokeWidth="1.4"/>
+        <line x1="13" y1="16" x2="13" y2="34" stroke={c} strokeWidth="1.4"/>
+        <line x1="29" y1="16" x2="29" y2="34" stroke={c} strokeWidth="1.4"/>
+        <ellipse cx="21" cy="34" rx="8" ry="2.8" fill="none" stroke={c} strokeWidth="1.4"/>
+        <ellipse cx="40" cy="28" rx="8" ry="2.8" fill="none" stroke={c} strokeWidth="1.4"/>
+        <line x1="32" y1="28" x2="32" y2="46" stroke={c} strokeWidth="1.4"/>
+        <line x1="48" y1="28" x2="48" y2="46" stroke={c} strokeWidth="1.4"/>
+        <ellipse cx="40" cy="46" rx="8" ry="2.8" fill="none" stroke={c} strokeWidth="1.4"/>
+      </svg>
+    ),
+  };
 
   // Direct DOM lerp — no React state updates in RAF
   useEffect(() => {
@@ -891,14 +1554,32 @@ function ProjectsPage() {
   }, []);
 
   useEffect(() => {
+    // Per-segment dwell easing — locks in on each project before sliding
+    // dwell = how much of each segment is "frozen" on the start/end project (0–0.5)
+    // higher = stickier; transition window is (1 - 2*dwell) of each segment
+    const DWELL = 0.35;
+    const easeSegment = (t) => {
+      if (t <= DWELL) return 0;
+      if (t >= 1 - DWELL) return 1;
+      const lt = (t - DWELL) / (1 - 2 * DWELL);
+      return lt * lt * (3 - 2 * lt); // smoothstep
+    };
+
     const onScroll = () => {
       if (!containerRef.current) return;
       const scrolled = Math.max(0, window.scrollY - containerRef.current.offsetTop);
       const totalScroll = containerRef.current.offsetHeight - window.innerHeight;
-      const progress = totalScroll > 0 ? Math.min(1, scrolled / totalScroll) : 0;
+      const rawProgress = totalScroll > 0 ? Math.min(1, scrolled / totalScroll) : 0;
+
+      const segments = projects.length - 1;
+      const segLen = 1 / segments;
+      const segIdx = Math.min(Math.floor(rawProgress / segLen), segments - 1);
+      const localT = (rawProgress - segIdx * segLen) / segLen;
+      const easedProgress = (segIdx + easeSegment(localT)) / segments;
+
       const maxOffset = (projects.length - 1) * window.innerWidth;
-      targetOffset.current = progress * maxOffset;
-      setActiveIdx(Math.round(progress * (projects.length - 1)));
+      targetOffset.current = easedProgress * maxOffset;
+      setActiveIdx(Math.round(easedProgress * (projects.length - 1)));
     };
     window.addEventListener('scroll', onScroll, {passive:true});
     setTimeout(onScroll, 80);
@@ -909,7 +1590,7 @@ function ProjectsPage() {
 
   return (
     <div style={{paddingTop:'var(--nav-h)'}}>
-      <div ref={containerRef} style={{height:`${projects.length * 120}vh`}}>
+      <div ref={containerRef} style={{height:`${projects.length * 170}vh`}}>
         <div style={{
           position:'sticky',top:'var(--nav-h)',
           height:'calc(100vh - var(--nav-h))',
@@ -979,18 +1660,47 @@ function ProjectsPage() {
               <div key={i} style={{
                 width:'100vw',height:'100%',flexShrink:0,
                 display:'flex',alignItems:'center',
+                justifyContent:proj.isClosing?'center':'flex-start',
                 padding:'0 10vw',
                 position:'relative',
                 overflow:'hidden',
                 background:'var(--cream)',
+                textAlign:proj.isClosing?'center':'left',
               }}>
+                {proj.isClosing ? (
+                  <div style={{maxWidth:620,position:'relative',zIndex:1}}>
+                    <div style={{fontFamily:'var(--mono)',fontSize:'0.62rem',letterSpacing:'0.22em',color:'var(--text-3)',marginBottom:'1.2rem',textTransform:'uppercase'}}>End of reel</div>
+                    <h2 style={{fontFamily:'var(--display)',fontSize:'clamp(2.5rem,5vw,4.2rem)',fontWeight:700,color:'var(--text)',letterSpacing:'-0.02em',lineHeight:1.05,marginBottom:'1.5rem'}}>That's the work.</h2>
+                    <div style={{width:40,height:2,background:'var(--gold)',margin:'1.5rem auto',opacity:0.7}}/>
+                    <p style={{fontSize:'1.05rem',color:'var(--text-2)',lineHeight:1.7,maxWidth:480,margin:'0 auto 2.25rem'}}>Want to dig into any of these or just chat about how I think? WiLLi can take it from here.</p>
+                    <div style={{display:'flex',gap:'0.75rem',justifyContent:'center',flexWrap:'wrap',marginBottom:'2.5rem'}}>
+                      <button onClick={()=>nav('/chat')} style={{background:'var(--text)',color:'var(--cream)',border:'none',borderRadius:8,padding:'0.85rem 1.7rem',fontFamily:'var(--display)',fontWeight:600,fontSize:'0.92rem',cursor:'pointer',display:'inline-flex',alignItems:'center',gap:'0.5rem',transition:'all 0.2s',boxShadow:'0 4px 18px rgba(26,18,8,0.12)'}} onMouseEnter={e=>{e.currentTarget.style.transform='translateY(-2px)';e.currentTarget.style.boxShadow='0 8px 24px rgba(26,18,8,0.18)'}} onMouseLeave={e=>{e.currentTarget.style.transform='translateY(0)';e.currentTarget.style.boxShadow='0 4px 18px rgba(26,18,8,0.12)'}}>
+                        Talk to WiLLi
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                      </button>
+                      <a href="https://github.com/wenlong96" target="_blank" rel="noopener" style={{background:'transparent',color:'var(--text)',border:'1px solid var(--border-2)',borderRadius:8,padding:'0.85rem 1.7rem',fontFamily:'var(--sans)',fontWeight:500,fontSize:'0.88rem',textDecoration:'none',cursor:'pointer',display:'inline-flex',alignItems:'center',gap:'0.5rem',transition:'border-color 0.2s'}} onMouseEnter={e=>e.currentTarget.style.borderColor='var(--text-3)'} onMouseLeave={e=>e.currentTarget.style.borderColor='var(--border-2)'}>
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
+                        GitHub
+                      </a>
+                    </div>
+                    <div style={{fontFamily:'var(--mono)',fontSize:'0.62rem',letterSpacing:'0.1em',color:'var(--text-4)',display:'flex',alignItems:'center',justifyContent:'center',gap:'0.55rem',flexWrap:'wrap'}}>
+                      <span>or reach out:</span>
+                      <a href="https://wa.me/6598437531" style={{color:'var(--text-3)',textDecoration:'none',borderBottom:'1px solid var(--border-2)'}}>+65 98437531</a>
+                      <span style={{opacity:0.4}}>·</span>
+                      <a href="https://t.me/wlhere" style={{color:'var(--text-3)',textDecoration:'none',borderBottom:'1px solid var(--border-2)'}}>@wlhere</a>
+                      <span style={{opacity:0.4}}>·</span>
+                      <a href="mailto:wenlonglim96@hotmail.com" style={{color:'var(--text-3)',textDecoration:'none',borderBottom:'1px solid var(--border-2)'}}>email</a>
+                    </div>
+                  </div>
+                ) : (
+                  <>
                 {/* ghost number */}
                 <div style={{
                   position:'absolute',right:'5vw',top:'50%',
                   transform:'translateY(-50%)',
                   fontFamily:'var(--display)',
                   fontSize:'clamp(8rem,18vw,16rem)',fontWeight:700,
-                  color:'var(--text)',opacity:0.04,
+                  color:proj.accent,opacity:0.10,
                   userSelect:'none',lineHeight:1,letterSpacing:'-0.04em',
                 }}>{proj.num}</div>
 
@@ -1014,8 +1724,21 @@ function ProjectsPage() {
                   </div>
                 </div>
 
-                {/* Right: stack + github */}
+                {/* Right: icon + stack + github */}
                 <div style={{flex:1,paddingLeft:'6vw'}}>
+                  {projectIcons[proj.num] && (
+                    <div style={{
+                      width:64,height:64,
+                      border:`1px solid ${proj.accent}`,
+                      borderRadius:10,
+                      display:'flex',alignItems:'center',justifyContent:'center',
+                      marginBottom:'1.75rem',
+                      background:'var(--cream-2)',
+                      boxShadow:`0 0 0 5px ${proj.accent}14`,
+                    }}>
+                      {projectIcons[proj.num](proj.accent)}
+                    </div>
+                  )}
                   <div style={{
                     fontFamily:'var(--mono)',fontSize:'0.6rem',
                     letterSpacing:'0.15em',color:'var(--text-3)',
@@ -1059,6 +1782,8 @@ function ProjectsPage() {
                     )}
                   </div>
                 </div>
+                  </>
+                )}
               </div>
             ))}
           </div>
@@ -1103,11 +1828,799 @@ function AdminPage({adminAuthed, onLogin, onLogout}) {
   );
 }
 
+// ── Playground (chess) ───────────────────────────────────────────────
+// Cburnett chess piece SVG set — public domain, hand-tuned for our cream board.
+// Keys: 'wK','wQ','wR','wB','wN','wP','bK','bQ','bR','bB','bN','bP'
+const PIECE_SVGS = {
+  wK: `<g fill="#fffdf7" stroke="#1a1208" stroke-width="1.5" stroke-linejoin="round"><path d="M 22.5,11.63 L 22.5,6" stroke-linecap="round"/><path d="M 20,8 L 25,8" stroke-linecap="round"/><path d="M 22.5,25 C 22.5,25 27,17.5 25.5,14.5 C 25.5,14.5 24.5,12 22.5,12 C 20.5,12 19.5,14.5 19.5,14.5 C 18,17.5 22.5,25 22.5,25" fill="#fffdf7" stroke-linecap="butt"/><path d="M 11.5,37 C 17,40.5 27,40.5 32.5,37 L 32.5,30 C 32.5,30 41.5,25.5 38.5,19.5 C 34.5,13 25,16 22.5,23.5 L 22.5,27 L 22.5,23.5 C 19,16 9.5,13 6.5,19.5 C 3.5,25.5 11.5,29.5 11.5,29.5 L 11.5,37 z"/><path d="M 11.5,30 C 17,27 27,27 32.5,30" fill="none"/><path d="M 11.5,33.5 C 17,30.5 27,30.5 32.5,33.5" fill="none"/><path d="M 11.5,37 C 17,34 27,34 32.5,37" fill="none"/></g>`,
+  wQ: `<g fill="#fffdf7" stroke="#1a1208" stroke-width="1.5" stroke-linejoin="round"><path d="M 9,26 C 17.5,24.5 30,24.5 36,26 L 38.5,13.5 L 31,25 L 30.7,10.9 L 25.5,24.5 L 22.5,10 L 19.5,24.5 L 14.3,10.9 L 14,25 L 6.5,13.5 L 9,26 z"/><path d="M 9,26 C 9,28 10.5,28 11.5,30 C 12.5,31.5 12.5,31 12,33.5 C 10.5,34.5 11,36 11,36 C 9.5,37.5 11,38.5 11,38.5 C 17.5,39.5 27.5,39.5 34,38.5 C 34,38.5 35.5,37.5 34,36 C 34,36 34.5,34.5 33,33.5 C 32.5,31 32.5,31.5 33.5,30 C 34.5,28 36,28 36,26 C 27.5,24.5 17.5,24.5 9,26 z"/><circle cx="6" cy="12" r="2"/><circle cx="14" cy="9" r="2"/><circle cx="22.5" cy="8" r="2"/><circle cx="31" cy="9" r="2"/><circle cx="39" cy="12" r="2"/></g>`,
+  wR: `<g fill="#fffdf7" stroke="#1a1208" stroke-width="1.5" stroke-linejoin="round"><path d="M 9,39 L 36,39 L 36,36 L 9,36 L 9,39 z" stroke-linecap="butt"/><path d="M 12,36 L 12,32 L 33,32 L 33,36 L 12,36 z" stroke-linecap="butt"/><path d="M 11,14 L 11,9 L 15,9 L 15,11 L 20,11 L 20,9 L 25,9 L 25,11 L 30,11 L 30,9 L 34,9 L 34,14" stroke-linecap="butt"/><path d="M 34,14 L 31,17 L 14,17 L 11,14"/><path d="M 31,17 L 31,29.5 L 14,29.5 L 14,17" stroke-linecap="butt"/><path d="M 31,29.5 L 32.5,32 L 12.5,32 L 14,29.5"/><path d="M 11,14 L 34,14" fill="none" stroke-linejoin="miter"/></g>`,
+  wB: `<g fill="#fffdf7" stroke="#1a1208" stroke-width="1.5" stroke-linejoin="round"><g fill="#fffdf7" stroke-linecap="butt"><path d="M 9,36 C 12.39,35.03 19.11,36.43 22.5,34 C 25.89,36.43 32.61,35.03 36,36 C 36,36 37.65,36.54 39,38 C 38.32,38.97 37.35,38.99 36,38.5 C 32.61,37.53 25.89,38.96 22.5,37.5 C 19.11,38.96 12.39,37.53 9,38.5 C 7.65,38.99 6.68,38.97 6,38 C 7.35,36.54 9,36 9,36 z"/><path d="M 15,32 C 17.5,34.5 27.5,34.5 30,32 C 30.5,30.5 30,30 30,30 C 30,27.5 27.5,26 27.5,26 C 33,24.5 33.5,14.5 22.5,10.5 C 11.5,14.5 12,24.5 17.5,26 C 17.5,26 15,27.5 15,30 C 15,30 14.5,30.5 15,32 z"/><path d="M 25 8 A 2.5 2.5 0 1 1 20,8 A 2.5 2.5 0 1 1 25 8 z"/></g><path d="M 17.5,26 L 27.5,26 M 15,30 L 30,30 M 22.5,15.5 L 22.5,20.5 M 20,18 L 25,18" stroke-linejoin="miter"/></g>`,
+  wN: `<g fill="#fffdf7" stroke="#1a1208" stroke-width="1.5" stroke-linejoin="round"><path d="M 22,10 C 32.5,11 38.5,18 38,39 L 15,39 C 15,30 25,32.5 23,18" fill="#fffdf7"/><path d="M 24,18 C 24.38,20.91 18.45,25.37 16,27 C 13,29 13.18,31.34 11,31 C 9.958,30.06 12.41,27.96 11,28 C 10,28 11.19,29.23 10,30 C 9,30 5.997,31 6,26 C 6,24 12,14 12,14 C 12,14 13.89,12.1 14,10.5 C 13.27,9.506 13.5,8.5 13.5,7.5 C 14.5,5.5 16.5,4 16.5,4 C 16.5,4 17.5,2 18,3 C 18,4 17.5,4.5 16,5 L 18,5 C 18,5 19.5,2 20,2 C 20.5,2 22,3 22,3 C 22,3 21,4 20,4 L 18,4 C 18,4 16.5,5 16.5,7 C 16.5,7 18.5,5 19.5,5 C 20.5,5 21.5,6 21,8 C 19.5,8 18.5,8.5 18,8.5 C 18,8.5 16,8 16,9 C 17,11 22,10 24,18 z" fill="#fffdf7"/><path d="M 9.5 25.5 A 0.5 0.5 0 1 1 8.5,25.5 A 0.5 0.5 0 1 1 9.5 25.5 z" fill="#1a1208" stroke="#1a1208"/><path d="M 15 15.5 A 0.5 1.5 0 1 1 14,15.5 A 0.5 1.5 0 1 1 15 15.5 z" transform="matrix(0.866,0.5,-0.5,0.866,9.693,-5.173)" fill="#1a1208" stroke="#1a1208"/></g>`,
+  wP: `<path d="M 22.5,9 C 20.29,9 18.5,10.79 18.5,13 C 18.5,13.89 18.79,14.71 19.28,15.38 C 17.33,16.5 16,18.59 16,21 C 16,23.03 16.94,24.84 18.41,26.03 C 15.41,27.09 11,31.58 11,39.5 L 34,39.5 C 34,31.58 29.59,27.09 26.59,26.03 C 28.06,24.84 29,23.03 29,21 C 29,18.59 27.67,16.5 25.72,15.38 C 26.21,14.71 26.5,13.89 26.5,13 C 26.5,10.79 24.71,9 22.5,9 z" fill="#fffdf7" stroke="#1a1208" stroke-width="1.5" stroke-linejoin="miter"/>`,
+  bK: `<g fill="#1a1208" stroke="#1a1208" stroke-width="1.5" stroke-linejoin="round"><path d="M 22.5,11.63 L 22.5,6" fill="none" stroke-linecap="butt"/><path d="M 22.5,25 C 22.5,25 27,17.5 25.5,14.5 C 25.5,14.5 24.5,12 22.5,12 C 20.5,12 19.5,14.5 19.5,14.5 C 18,17.5 22.5,25 22.5,25" fill="#1a1208" stroke-linecap="butt" stroke-linejoin="miter"/><path d="M 11.5,37 C 17,40.5 27,40.5 32.5,37 L 32.5,30 C 32.5,30 41.5,25.5 38.5,19.5 C 34.5,13 25,16 22.5,23.5 L 22.5,27 L 22.5,23.5 C 19,16 9.5,13 6.5,19.5 C 3.5,25.5 11.5,29.5 11.5,29.5 L 11.5,37 z" fill="#1a1208"/><path d="M 20,8 L 25,8" stroke="#fffdf7" stroke-linejoin="miter"/><path d="M 32,29.5 C 32,29.5 40.5,25.5 38.03,19.85 C 34.15,14 25,18 22.5,24.5 L 22.5,26.6 L 22.5,24.5 C 20,18 10.85,14 6.97,19.85 C 4.5,25.5 13,29.5 13,29.5" stroke="#fffdf7" fill="none"/><path d="M 11.5,30 C 17,27 27,27 32.5,30 M 11.5,33.5 C 17,30.5 27,30.5 32.5,33.5 M 11.5,37 C 17,34 27,34 32.5,37" stroke="#fffdf7" fill="none"/></g>`,
+  bQ: `<g fill="#1a1208" stroke="#1a1208" stroke-width="1.5" stroke-linejoin="round"><path d="M 9,26 C 17.5,24.5 30,24.5 36,26 L 38.5,13.5 L 31,25 L 30.7,10.9 L 25.5,24.5 L 22.5,10 L 19.5,24.5 L 14.3,10.9 L 14,25 L 6.5,13.5 L 9,26 z" stroke-linecap="butt"/><path d="M 9,26 C 9,28 10.5,28 11.5,30 C 12.5,31.5 12.5,31 12,33.5 C 10.5,34.5 11,36 11,36 C 9.5,37.5 11,38.5 11,38.5 C 17.5,39.5 27.5,39.5 34,38.5 C 34,38.5 35.5,37.5 34,36 C 34,36 34.5,34.5 33,33.5 C 32.5,31 32.5,31.5 33.5,30 C 34.5,28 36,28 36,26 C 27.5,24.5 17.5,24.5 9,26 z" stroke-linecap="butt"/><path d="M 11,38.5 A 35,35 1 0 0 34,38.5" fill="none" stroke-linecap="butt"/><path d="M 11,29 A 35,35 1 0 1 34,29" fill="none" stroke="#fffdf7"/><path d="M 12.5,31.5 L 31.5,31.5" fill="none" stroke="#fffdf7"/><path d="M 11.5,34.5 A 35,35 1 0 0 33.5,34.5" fill="none" stroke="#fffdf7"/><path d="M 10.5,37.5 A 35,35 1 0 0 34.5,37.5" fill="none" stroke="#fffdf7"/><circle cx="6" cy="12" r="2" fill="#1a1208"/><circle cx="14" cy="9" r="2" fill="#1a1208"/><circle cx="22.5" cy="8" r="2" fill="#1a1208"/><circle cx="31" cy="9" r="2" fill="#1a1208"/><circle cx="39" cy="12" r="2" fill="#1a1208"/></g>`,
+  bR: `<g fill="#1a1208" stroke="#1a1208" stroke-width="1.5" stroke-linejoin="round"><path d="M 9,39 L 36,39 L 36,36 L 9,36 L 9,39 z" stroke-linecap="butt"/><path d="M 12.5,32 L 14,29.5 L 31,29.5 L 32.5,32 L 12.5,32 z" stroke-linecap="butt"/><path d="M 12,36 L 12,32 L 33,32 L 33,36 L 12,36 z" stroke-linecap="butt"/><path d="M 14,29.5 L 14,16.5 L 31,16.5 L 31,29.5 L 14,29.5 z" stroke-linecap="butt" stroke-linejoin="miter"/><path d="M 14,16.5 L 11,14 L 34,14 L 31,16.5 L 14,16.5 z" stroke-linecap="butt"/><path d="M 11,14 L 11,9 L 15,9 L 15,11 L 20,11 L 20,9 L 25,9 L 25,11 L 30,11 L 30,9 L 34,9 L 34,14 L 11,14 z" stroke-linecap="butt"/><path d="M 12,35.5 L 33,35.5 L 33,35.5" stroke="#fffdf7" stroke-width="1" stroke-linejoin="miter"/><path d="M 13,31.5 L 32,31.5" stroke="#fffdf7" stroke-width="1" stroke-linejoin="miter"/><path d="M 14,29.5 L 31,29.5" stroke="#fffdf7" stroke-width="1" stroke-linejoin="miter"/><path d="M 14,16.5 L 31,16.5" stroke="#fffdf7" stroke-width="1" stroke-linejoin="miter"/><path d="M 11,14 L 34,14" stroke="#fffdf7" stroke-width="1" stroke-linejoin="miter"/></g>`,
+  bB: `<g fill="#1a1208" stroke="#1a1208" stroke-width="1.5" stroke-linejoin="round"><g fill="#1a1208" stroke-linecap="butt"><path d="M 9,36 C 12.39,35.03 19.11,36.43 22.5,34 C 25.89,36.43 32.61,35.03 36,36 C 36,36 37.65,36.54 39,38 C 38.32,38.97 37.35,38.99 36,38.5 C 32.61,37.53 25.89,38.96 22.5,37.5 C 19.11,38.96 12.39,37.53 9,38.5 C 7.65,38.99 6.68,38.97 6,38 C 7.35,36.54 9,36 9,36 z"/><path d="M 15,32 C 17.5,34.5 27.5,34.5 30,32 C 30.5,30.5 30,30 30,30 C 30,27.5 27.5,26 27.5,26 C 33,24.5 33.5,14.5 22.5,10.5 C 11.5,14.5 12,24.5 17.5,26 C 17.5,26 15,27.5 15,30 C 15,30 14.5,30.5 15,32 z"/><path d="M 25 8 A 2.5 2.5 0 1 1 20,8 A 2.5 2.5 0 1 1 25 8 z"/></g><path d="M 17.5,26 L 27.5,26 M 15,30 L 30,30 M 22.5,15.5 L 22.5,20.5 M 20,18 L 25,18" fill="none" stroke="#fffdf7" stroke-linejoin="miter"/></g>`,
+  bN: `<g fill="#1a1208" stroke="#1a1208" stroke-width="1.5" stroke-linejoin="round"><path d="M 22,10 C 32.5,11 38.5,18 38,39 L 15,39 C 15,30 25,32.5 23,18" fill="#1a1208"/><path d="M 24,18 C 24.38,20.91 18.45,25.37 16,27 C 13,29 13.18,31.34 11,31 C 9.958,30.06 12.41,27.96 11,28 C 10,28 11.19,29.23 10,30 C 9,30 5.997,31 6,26 C 6,24 12,14 12,14 C 12,14 13.89,12.1 14,10.5 C 13.27,9.506 13.5,8.5 13.5,7.5 C 14.5,5.5 16.5,4 16.5,4 C 16.5,4 17.5,2 18,3 C 18,4 17.5,4.5 16,5 L 18,5 C 18,5 19.5,2 20,2 C 20.5,2 22,3 22,3 C 22,3 21,4 20,4 L 18,4 C 18,4 16.5,5 16.5,7 C 16.5,7 18.5,5 19.5,5 C 20.5,5 21.5,6 21,8 C 19.5,8 18.5,8.5 18,8.5 C 18,8.5 16,8 16,9 C 17,11 22,10 24,18 z" fill="#1a1208"/><path d="M 9.5 25.5 A 0.5 0.5 0 1 1 8.5,25.5 A 0.5 0.5 0 1 1 9.5 25.5 z" fill="#fffdf7" stroke="#fffdf7"/><path d="M 15 15.5 A 0.5 1.5 0 1 1 14,15.5 A 0.5 1.5 0 1 1 15 15.5 z" transform="matrix(0.866,0.5,-0.5,0.866,9.693,-5.173)" fill="#fffdf7" stroke="#fffdf7"/><path d="M 24.55,10.4 L 24.1,11.85 L 24.6,12 C 27.75,13 30.25,14.49 32.5,18.75 C 34.75,23.01 35.75,29.06 35.25,39 L 35.2,39.5 L 37.45,39.5 L 37.5,39 C 38,28.94 36.62,22.15 34.25,17.66 C 31.88,13.17 28.46,11.02 25.06,10.5 L 24.55,10.4 z" fill="#fffdf7" stroke="none"/></g>`,
+  bP: `<path d="M 22.5,9 C 20.29,9 18.5,10.79 18.5,13 C 18.5,13.89 18.79,14.71 19.28,15.38 C 17.33,16.5 16,18.59 16,21 C 16,23.03 16.94,24.84 18.41,26.03 C 15.41,27.09 11,31.58 11,39.5 L 34,39.5 C 34,31.58 29.59,27.09 26.59,26.03 C 28.06,24.84 29,23.03 29,21 C 29,18.59 27.67,16.5 25.72,15.38 C 26.21,14.71 26.5,13.89 26.5,13 C 26.5,10.79 24.71,9 22.5,9 z" fill="#1a1208" stroke="#1a1208" stroke-width="1.5" stroke-linejoin="miter"/>`,
+};
+
+function ChessPiece({code}){
+  // code is like 'wK' for white king. Returns inline SVG sized to the parent square.
+  const svg = PIECE_SVGS[code];
+  if (!svg) return null;
+  return <svg viewBox="0 0 45 45" dangerouslySetInnerHTML={{__html:svg}} />;
+}
+
+// Map chess.js piece -> our SVG code
+function pieceCode(p){
+  if (!p) return null;
+  return (p.color === 'w' ? 'w' : 'b') + p.type.toUpperCase();
+}
+
+// Difficulty presets. Stockfish skill_level 0-20, we also throttle search depth.
+// 'willi' is special — uses opening book + reactions.
+const DIFFICULTIES = [
+  {id:'willi', label:'Will',         skill:1,  depth:3, randomChance:0.08, isWilli:true},
+  {id:'d100',  label:'Beginner',     skill:0,  depth:1, randomChance:0.20},
+  {id:'d300',  label:'Casual',       skill:0,  depth:2, randomChance:0.10},
+  {id:'d800',  label:'Fair',         skill:3,  depth:5, randomChance:0.03},
+  {id:'d1200', label:'Intermediate', skill:8,  depth:8, randomChance:0},
+  {id:'d1600', label:'Hard',         skill:14, depth:12, randomChance:0},
+];
+
+// Sound effects — preloads chess audio files on mount and provides a play()
+// function. Mute state persisted to localStorage. Files are in /sounds/ and
+// must be named: move, capture, castle, check, checkmate, promotion,
+// game-start, game-end, illegal — extension is figured out at preload time.
+const SOUND_EVENTS = ['move','capture','castle','check','checkmate','promotion','game-start','game-end','illegal'];
+// Bump this whenever you swap sound packs (run build_sounds.py --pack X).
+// The query string forces browsers and Cloudflare to fetch fresh audio rather
+// than serve a cached version of the old pack.
+const SOUND_VERSION = 1;
+function useSoundEffects(){
+  const [muted, setMuted] = useState(() => {
+    try { return localStorage.getItem('willi_pg_muted') === '1'; } catch { return false; }
+  });
+  const audiosRef = useRef({}); // event name -> HTMLAudioElement (template, cloned per play)
+
+  // Preload audio files. Try .mp3 first, fall back to .ogg if 404.
+  useEffect(() => {
+    let cancelled = false;
+    SOUND_EVENTS.forEach(ev => {
+      const tryExt = (ext) => {
+        const a = new Audio(`/sounds/${ev}.${ext}?v=${SOUND_VERSION}`);
+        a.preload = 'auto';
+        a.volume = 0.5;
+        a.addEventListener('canplaythrough', () => {
+          if (!cancelled) audiosRef.current[ev] = a;
+        }, {once: true});
+        a.addEventListener('error', () => {
+          if (cancelled) return;
+          if (ext === 'mp3') tryExt('ogg');
+          // If both fail, just skip — graceful silence
+        }, {once: true});
+        a.load();
+      };
+      tryExt('mp3');
+    });
+    return () => { cancelled = true; };
+  }, []);
+
+  const play = useCallback((ev) => {
+    if (muted) return;
+    const template = audiosRef.current[ev];
+    if (!template) return; // file not loaded — silent
+    try {
+      // Clone so overlapping plays don't queue/cut off
+      const clone = template.cloneNode();
+      clone.volume = template.volume;
+      const p = clone.play();
+      // Some browsers return a Promise that rejects on autoplay block — silently swallow
+      if (p && p.catch) p.catch(()=>{});
+    } catch {}
+  }, [muted]);
+
+  const toggleMute = useCallback(() => {
+    setMuted(m => {
+      const next = !m;
+      try { localStorage.setItem('willi_pg_muted', next ? '1' : '0'); } catch {}
+      return next;
+    });
+  }, []);
+
+  return {play, muted, toggleMute};
+}
+
+function PlaygroundPage(){
+  const [chessLib, setChessLib] = useState(null); // window.Chess constructor when loaded
+  const [engineReady, setEngineReady] = useState(false);
+  const [reactions, setReactions] = useState(null);
+  const [openingBook, setOpeningBook] = useState(null);
+  const [imgError, setImgError] = useState(false);
+  const sound = useSoundEffects();
+
+  const [difficulty, setDifficulty] = useState('willi');
+  const [playerColor, setPlayerColor] = useState('w'); // 'w' or 'b' — which color the user plays
+  const [game, setGame] = useState(null); // chess.js instance
+  const [boardKey, setBoardKey] = useState(0); // forces re-render after game mutations
+  const [selected, setSelected] = useState(null); // 'e2' etc
+  const [legalTargets, setLegalTargets] = useState([]); // ['e3','e4',...]
+  const [lastMove, setLastMove] = useState(null); // {from, to}
+  const [thinking, setThinking] = useState(false);
+  const [currentReaction, setCurrentReaction] = useState(null); // {id, text, leaving}
+  const [pendingPromotion, setPendingPromotion] = useState(null); // {from, to} when human pawn reaches 8th rank
+  const [gameOver, setGameOver] = useState(null);
+  // Map of difficulty id -> saved game snapshot {pgn, playerColor, gameOver, lastMove}
+  // Lets users switch modes mid-game without losing progress; switching back restores state.
+  const [savedGames, setSavedGames] = useState({});
+  const [avatarPopping, setAvatarPopping] = useState(false);
+  const [history, setHistory] = useState({w:0, l:0, d:0});
+  const [showBanner, setShowBanner] = useState(false);
+
+  const engineRef = useRef(null);
+  const engineCallbackRef = useRef(null);
+  const moveTimerRef = useRef(null);
+  const reactCounterRef = useRef(0);
+  const reactTimerRef = useRef(null);
+  const reactLeaveTimerRef = useRef(null);
+  const avatarPopTimerRef = useRef(null);
+
+  const diffMeta = DIFFICULTIES.find(d => d.id === difficulty);
+  const isWilli = !!diffMeta?.isWilli;
+
+  // Load chess.js (UMD) once
+  useEffect(() => {
+    if (window.Chess) { setChessLib(() => window.Chess); return; }
+    const s = document.createElement('script');
+    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js';
+    s.async = true;
+    s.onload = () => { if (window.Chess) setChessLib(() => window.Chess); };
+    s.onerror = () => { console.error('chess.js failed to load'); };
+    document.head.appendChild(s);
+  }, []);
+
+  const [engineError, setEngineError] = useState(false);
+
+  // Spin up Stockfish web worker once.
+  // We fetch the script first and wrap it in a Blob URL because browsers won't
+  // allow `new Worker(crossOriginUrl)` directly. Blob URLs are same-origin.
+  useEffect(() => {
+    if (engineRef.current) return;
+    let worker = null;
+    let timeoutId = null;
+    let blobUrl = null;
+    let cancelled = false;
+
+    const setup = async () => {
+      try {
+        const res = await fetch('https://cdnjs.cloudflare.com/ajax/libs/stockfish.js/10.0.2/stockfish.js', {mode: 'cors'});
+        if (!res.ok) throw new Error('fetch returned ' + res.status);
+        const text = await res.text();
+        if (cancelled) return;
+        const blob = new Blob([text], {type: 'application/javascript'});
+        blobUrl = URL.createObjectURL(blob);
+        worker = new Worker(blobUrl);
+      } catch (e) {
+        console.error('Stockfish failed to load:', e);
+        setEngineError(true);
+        return;
+      }
+
+      // Surface error if the engine doesn't say 'readyok' within 25 seconds
+      timeoutId = setTimeout(() => {
+        if (!engineReady && !cancelled) {
+          console.warn('Stockfish never became ready within 25s');
+          setEngineError(true);
+        }
+      }, 25000);
+
+      worker.onmessage = (e) => {
+        const line = typeof e.data === 'string' ? e.data : (e.data?.data || '');
+        if (line === 'uciok') worker.postMessage('isready');
+        if (line === 'readyok') {
+          setEngineReady(true);
+          if (timeoutId) { clearTimeout(timeoutId); timeoutId = null; }
+        }
+        const m = line.match(/^bestmove\s+(\S+)/);
+        if (m && engineCallbackRef.current) {
+          const cb = engineCallbackRef.current;
+          engineCallbackRef.current = null;
+          cb(m[1]);
+        }
+      };
+      worker.onerror = (err) => {
+        console.error('Stockfish worker error:', err);
+        setEngineError(true);
+      };
+      worker.postMessage('uci');
+      engineRef.current = worker;
+    };
+
+    setup();
+
+    return () => {
+      cancelled = true;
+      if (timeoutId) clearTimeout(timeoutId);
+      try { worker?.terminate(); } catch{}
+      if (blobUrl) URL.revokeObjectURL(blobUrl);
+    };
+  }, []);
+
+  // Lazy load reactions + opening book (WiLLi mode only — but loading is cheap so do it once)
+  useEffect(() => {
+    fetch('/reactions.json').then(r => r.ok ? r.json() : null).then(setReactions).catch(()=>setReactions({}));
+    fetch('/opening_book.json').then(r => r.ok ? r.json() : null).then(setOpeningBook).catch(()=>setOpeningBook({}));
+  }, []);
+
+  // Init game once chess lib is loaded
+  useEffect(() => {
+    if (!chessLib) return;
+    setGame(new chessLib());
+  }, [chessLib]);
+
+  // First-visit disclaimer
+  useEffect(() => {
+    try {
+      if (!localStorage.getItem('willi_pg_seen')) setShowBanner(true);
+    } catch {}
+  }, []);
+  const dismissBanner = () => {
+    setShowBanner(false);
+    try { localStorage.setItem('willi_pg_seen','1'); } catch {}
+  };
+
+  // Restore match history
+  useEffect(() => {
+    try {
+      const h = localStorage.getItem('willi_pg_record');
+      if (h) setHistory(JSON.parse(h));
+    } catch {}
+  }, []);
+  const updateHistory = (delta) => {
+    setHistory(prev => {
+      const next = {...prev, ...delta};
+      Object.keys(delta).forEach(k => { next[k] = (prev[k]||0) + delta[k]; });
+      try { localStorage.setItem('willi_pg_record', JSON.stringify(next)); } catch {}
+      return next;
+    });
+  };
+
+  // Show a single reaction popup. Replaces any current one.
+  // Auto-dismisses after a duration that scales with text length.
+  const pushReaction = (text) => {
+    if (reactTimerRef.current) clearTimeout(reactTimerRef.current);
+    if (reactLeaveTimerRef.current) clearTimeout(reactLeaveTimerRef.current);
+    if (avatarPopTimerRef.current) clearTimeout(avatarPopTimerRef.current);
+    reactCounterRef.current += 1;
+    setCurrentReaction({id: reactCounterRef.current, text, leaving: false});
+    // Avatar pop animation — restart by toggling the class off then back on
+    setAvatarPopping(false);
+    requestAnimationFrame(() => setAvatarPopping(true));
+    avatarPopTimerRef.current = setTimeout(() => setAvatarPopping(false), 600);
+    // Duration: 2.5s base + 50ms per char, capped at 8s
+    const duration = Math.min(2500 + text.length * 50, 8000);
+    reactTimerRef.current = setTimeout(() => {
+      setCurrentReaction(prev => prev ? {...prev, leaving: true} : null);
+      reactLeaveTimerRef.current = setTimeout(() => {
+        setCurrentReaction(null);
+      }, 300);
+    }, duration);
+  };
+
+  const fireReactionForEvent = (eventKey) => {
+    if (!isWilli || !reactions) return;
+    const lines = reactions[eventKey];
+    if (!lines || !lines.length) return;
+    const pick = lines[Math.floor(Math.random() * lines.length)];
+    pushReaction(pick);
+  };
+
+  // Ask Stockfish for a move at the current FEN. Returns a Promise of UCI move like 'e2e4'.
+  const askEngine = (fen, opts) => new Promise((resolve) => {
+    if (!engineRef.current || !engineReady) { resolve(null); return; }
+    engineCallbackRef.current = resolve;
+    const w = engineRef.current;
+    w.postMessage(`setoption name Skill Level value ${opts.skill}`);
+    w.postMessage(`position fen ${fen}`);
+    w.postMessage(`go depth ${opts.depth}`);
+  });
+
+  // Pick a move from the opening book if one exists for this position. Returns
+  // a UCI move or null. Frequencies are weights — sample proportionally.
+  const consultOpeningBook = (fen) => {
+    if (!openingBook || !openingBook.positions) return null;
+    const key = fen.split(' ').slice(0,2).join(' '); // strip move counters for matching
+    const moves = openingBook.positions[key];
+    if (!moves || !moves.length) return null;
+    const total = moves.reduce((a,m) => a + m.weight, 0);
+    let r = Math.random() * total;
+    for (const m of moves) {
+      r -= m.weight;
+      if (r <= 0) return m.uci;
+    }
+    return moves[0].uci;
+  };
+
+  // Apply a move (from chess.js move object) to the game and update UI
+  const applyMove = (mv) => {
+    setLastMove({from: mv.from, to: mv.to});
+    setBoardKey(k => k + 1);
+
+    // Pick a single sound based on the move's character. chess.js encodes
+    // move type in mv.flags: 'k' kingside castle, 'q' queenside castle,
+    // 'p' promotion, 'c' capture, 'e' en passant capture, etc.
+    // Priority: checkmate/draw > check > castle > promotion > capture > move
+    const flags = mv.flags || '';
+    const isCastle = flags.includes('k') || flags.includes('q');
+    const isPromotion = !!mv.promotion;
+    const isCapture = !!mv.captured;
+
+    // Game-over checks
+    if (game.in_checkmate()) {
+      const winnerIsHuman = mv.color === playerColor;
+      setGameOver({result: winnerIsHuman?'win':'loss', reason:'checkmate'});
+      sound.play('checkmate');
+      if (winnerIsHuman) { fireReactionForEvent('on_loss'); updateHistory({w:1}); }
+      else { fireReactionForEvent('on_win'); updateHistory({l:1}); }
+    } else if (game.in_stalemate() || game.in_threefold_repetition() || game.insufficient_material() || game.in_draw()) {
+      setGameOver({result:'draw', reason: game.in_stalemate()?'stalemate':'draw'});
+      sound.play('game-end');
+      fireReactionForEvent('on_draw');
+      updateHistory({d:1});
+    } else if (game.in_check()) {
+      sound.play('check');
+      // mv.color is who just moved (delivered the check)
+      if (mv.color === playerColor) fireReactionForEvent('your_check');
+      else fireReactionForEvent('their_check');
+    } else if (isCastle) {
+      sound.play('castle');
+    } else if (isPromotion) {
+      sound.play('promotion');
+    } else if (isCapture) {
+      sound.play('capture');
+    } else {
+      sound.play('move');
+    }
+  };
+
+  const botColor = playerColor === 'w' ? 'b' : 'w';
+
+  // Bot's turn: pick move (book or engine), apply with cosmetic delay
+  const botMove = () => {
+    if (!game || game.game_over()) return;
+    if (game.turn() !== botColor) return;
+    setThinking(true);
+    const moveNum = Math.ceil(game.history().length / 2);
+
+    // Cosmetic delay shaped roughly like a human ELO-600 player thinks:
+    // fast in opening, slower in middlegame, occasional "long think", quicker in endgame.
+    let baseMin, baseMax;
+    if (moveNum <= 6) { baseMin = 500; baseMax = 1500; }
+    else if (moveNum <= 15) { baseMin = 2000; baseMax = 5000; }
+    else if (moveNum <= 25) { baseMin = 2000; baseMax = 7000; }
+    else { baseMin = 1000; baseMax = 3000; }
+    if (Math.random() < 0.10 && moveNum > 10) { baseMax += 7000; } // rare long think
+    const delay = baseMin + Math.random() * (baseMax - baseMin);
+
+    // Decide the move now (may be near-instant from book, or short engine call)
+    const decideAsync = async () => {
+      let uci = null;
+      // Try opening book first (WiLLi mode only, opening phase)
+      if (isWilli && moveNum <= 8) uci = consultOpeningBook(game.fen());
+      // Random move chance — for low difficulty / WiLLi flavor
+      if (!uci && Math.random() < (diffMeta.randomChance || 0)) {
+        const moves = game.moves({verbose:true});
+        if (moves.length) {
+          const r = moves[Math.floor(Math.random()*moves.length)];
+          uci = r.from + r.to + (r.promotion || '');
+        }
+      }
+      // Otherwise engine
+      if (!uci) uci = await askEngine(game.fen(), {skill: diffMeta.skill, depth: diffMeta.depth});
+      return uci;
+    };
+    decideAsync().then(uci => {
+      moveTimerRef.current = setTimeout(() => {
+        if (!uci) { setThinking(false); return; }
+        const from = uci.slice(0,2), to = uci.slice(2,4), promotion = uci.slice(4) || undefined;
+        const beforeFen = game.fen();
+        const mv = game.move({from, to, promotion: promotion || 'q'});
+        if (mv) {
+          // Reactions for capture / first-move / blunder
+          if (moveNum === 1 && isWilli) fireReactionForEvent('opening');
+          if (mv.captured) fireReactionForEvent('their_capture');
+          applyMove(mv);
+        }
+        setThinking(false);
+      }, delay);
+    });
+  };
+
+  // Trigger bot move when it becomes the bot's turn
+  useEffect(() => {
+    if (!game || !engineReady) return;
+    if (game.turn() === botColor && !game.game_over() && !gameOver) {
+      botMove();
+    }
+    return () => { if (moveTimerRef.current) clearTimeout(moveTimerRef.current); };
+    // eslint-disable-next-line
+  }, [boardKey, engineReady, game, botColor]);
+
+  // Click handling: select piece, then click a target square to move
+  const handleSquareClick = (sq) => {
+    if (!game || gameOver || thinking || pendingPromotion) return;
+    if (game.turn() !== playerColor) return;
+    // If clicking the selected square again, deselect
+    if (selected === sq) { setSelected(null); setLegalTargets([]); return; }
+    // If a piece is selected and the click is on a legal target, move
+    if (selected && legalTargets.includes(sq)) {
+      const movingPiece = game.get(selected);
+      const promoRank = playerColor === 'w' ? '8' : '1';
+      const isPromotion = movingPiece && movingPiece.type === 'p' && sq[1] === promoRank;
+      if (isPromotion) {
+        setPendingPromotion({from: selected, to: sq});
+        return;
+      }
+      const mv = game.move({from: selected, to: sq});
+      if (mv) {
+        setSelected(null); setLegalTargets([]);
+        if (mv.captured && isWilli) fireReactionForEvent('your_capture');
+        applyMove(mv);
+      }
+      return;
+    }
+    // Otherwise try to select a piece on the clicked square
+    const piece = game.get(sq);
+    if (piece && piece.color === playerColor) {
+      const moves = game.moves({square: sq, verbose: true});
+      setSelected(sq);
+      setLegalTargets(moves.map(m => m.to));
+    } else {
+      setSelected(null); setLegalTargets([]);
+    }
+  };
+
+  // Complete a pawn promotion the user just chose
+  const choosePromotion = (pieceType) => {
+    if (!pendingPromotion) return;
+    const mv = game.move({from: pendingPromotion.from, to: pendingPromotion.to, promotion: pieceType});
+    setPendingPromotion(null);
+    setSelected(null); setLegalTargets([]);
+    if (mv) {
+      if (mv.captured && isWilli) fireReactionForEvent('your_capture');
+      applyMove(mv);
+    }
+  };
+
+  // Helper: snapshot the current game so we can restore it later
+  const snapshotCurrentGame = () => {
+    if (!game) return null;
+    return {
+      pgn: game.pgn(),
+      playerColor,
+      gameOver,
+      lastMove,
+    };
+  };
+
+  // Restore a snapshotted game by replaying its PGN
+  const restoreGame = (snap) => {
+    if (!chessLib || !snap) return false;
+    const restored = new chessLib();
+    try {
+      restored.load_pgn(snap.pgn);
+    } catch {
+      return false;
+    }
+    setGame(restored);
+    setPlayerColor(snap.playerColor || 'w');
+    setLastMove(snap.lastMove || null);
+    setGameOver(snap.gameOver || null);
+    setSelected(null); setLegalTargets([]); setPendingPromotion(null);
+    setBoardKey(k => k + 1);
+    return true;
+  };
+
+  const newGame = (colorOverride) => {
+    if (moveTimerRef.current) clearTimeout(moveTimerRef.current);
+    if (reactTimerRef.current) clearTimeout(reactTimerRef.current);
+    if (reactLeaveTimerRef.current) clearTimeout(reactLeaveTimerRef.current);
+    if (!chessLib) return;
+    const newColor = colorOverride || playerColor;
+    setGame(new chessLib());
+    setPlayerColor(newColor);
+    setSelected(null); setLegalTargets([]); setLastMove(null);
+    setGameOver(null); setThinking(false);
+    setCurrentReaction(null);
+    setPendingPromotion(null);
+    // Clear saved game for this mode — they explicitly started fresh
+    setSavedGames(prev => {
+      const next = {...prev};
+      delete next[difficulty];
+      return next;
+    });
+    sound.play('game-start');
+    if (isWilli) fireReactionForEvent('on_start');
+    setBoardKey(k => k + 1);
+  };
+
+  const switchColor = (color) => {
+    if (color === playerColor) return;
+    // Switching color always starts a new game in this mode
+    newGame(color);
+  };
+
+  // Switch to a different difficulty. Saves the current game's state under the
+  // current difficulty so it can be returned to. If the target difficulty has
+  // a saved state, restore it; otherwise start fresh.
+  const switchDifficulty = (newId) => {
+    if (newId === difficulty) return;
+    if (moveTimerRef.current) clearTimeout(moveTimerRef.current);
+    setThinking(false);
+    setCurrentReaction(null);
+    setPendingPromotion(null);
+    setSelected(null); setLegalTargets([]);
+
+    // Save current game (only if it has any moves OR is over — don't bother saving an untouched fresh board)
+    const snap = snapshotCurrentGame();
+    const movesSoFar = game?.history().length || 0;
+    setSavedGames(prev => {
+      const next = {...prev};
+      if (movesSoFar > 0 || gameOver) {
+        next[difficulty] = snap;
+      } else {
+        delete next[difficulty];
+      }
+      return next;
+    });
+
+    setDifficulty(newId);
+    // Restore saved state for new mode if any, else fresh game
+    const saved = savedGames[newId];
+    if (saved) {
+      restoreGame(saved);
+    } else if (chessLib) {
+      const fresh = new chessLib();
+      setGame(fresh);
+      setLastMove(null);
+      setGameOver(null);
+      setBoardKey(k => k + 1);
+    }
+  };
+
+  // Build board squares — render from player's perspective.
+  // White at bottom: ranks 8..1, files a..h.
+  // Black at bottom: ranks 1..8, files h..a.
+  const renderBoard = () => {
+    if (!game) return <div className="pg-loading">Loading board…</div>;
+    const filesAH = ['a','b','c','d','e','f','g','h'];
+    const isBlackPov = playerColor === 'b';
+    const fileOrder = isBlackPov ? [...filesAH].reverse() : filesAH;
+    const rankOrder = isBlackPov ? [1,2,3,4,5,6,7,8] : [8,7,6,5,4,3,2,1];
+
+    const squares = [];
+    const checkColor = game.in_check() ? game.turn() : null;
+    let kingSq = null;
+    if (checkColor) {
+      // Find the king under check
+      for (const f of filesAH) for (let r=1;r<=8;r++) {
+        const sq = f+r;
+        const p = game.get(sq);
+        if (p && p.type === 'k' && p.color === checkColor) { kingSq = sq; break; }
+      }
+    }
+    rankOrder.forEach((r, ri) => {
+      fileOrder.forEach((f, fi) => {
+        const sq = f + r;
+        // Square color: a1 is dark; alternates by file+rank parity. Reuse standard.
+        const fileIdx = filesAH.indexOf(f);
+        const isLight = (fileIdx + r) % 2 === 1;
+        const piece = game.get(sq);
+        const cls = ['pg-sq', isLight?'light':'dark'];
+        if (selected === sq) cls.push('selected');
+        if (lastMove && (lastMove.from === sq || lastMove.to === sq)) cls.push('last-move');
+        if (legalTargets.includes(sq)) cls.push(piece ? 'legal-capture' : 'legal-move');
+        if (kingSq === sq) cls.push('in-check');
+        // Show rank label on the leftmost column of the rendered board
+        // and file label on the bottommost row of the rendered board.
+        const showRankLabel = fi === 0;
+        const showFileLabel = ri === 7;
+        squares.push(
+          <div key={sq} className={cls.join(' ')} onClick={() => handleSquareClick(sq)}>
+            {showRankLabel && <span className="pg-rank-label">{r}</span>}
+            {showFileLabel && <span className="pg-file-label">{f}</span>}
+            {piece && <ChessPiece code={pieceCode(piece)} />}
+          </div>
+        );
+      });
+    });
+    return <div className="pg-board">{squares}</div>;
+  };
+
+  // SAN moves grouped by full move number for the scoresheet
+  const moveHistoryRows = (() => {
+    if (!game) return [];
+    const moves = game.history(); // array of SAN strings
+    const rows = [];
+    for (let i = 0; i < moves.length; i += 2) {
+      rows.push({n: Math.floor(i/2)+1, w: moves[i], b: moves[i+1] || ''});
+    }
+    return rows;
+  })();
+
+  return (
+    <div className="pg-wrap">
+      {showBanner && (
+        <div className="pg-banner">
+          <span>Will is in gaming mode here. Expect a bit of nonsense but all in good fun.</span>
+          <button onClick={dismissBanner} aria-label="Dismiss">×</button>
+        </div>
+      )}
+
+      <div className="pg-head">
+        <div>
+          <h1>Chess</h1>
+          <div className="pg-sub" style={{marginTop:'0.35rem'}}>Pick an opponent · Click to move</div>
+        </div>
+        <div style={{display:'flex',alignItems:'center',gap:'0.85rem'}}>
+          <div className="pg-record">
+            Record vs Will: <span style={{color:'var(--text-2)'}}>{history.w}W</span> · <span style={{color:'var(--text-2)'}}>{history.l}L</span> · <span style={{color:'var(--text-2)'}}>{history.d}D</span>
+          </div>
+          <button onClick={sound.toggleMute} title={sound.muted ? 'Unmute sounds' : 'Mute sounds'} aria-label={sound.muted ? 'Unmute sounds' : 'Mute sounds'} style={{
+            background:'none',border:'1px solid var(--border-2)',borderRadius:5,
+            padding:'0.35rem 0.5rem',cursor:'pointer',
+            color:sound.muted?'var(--text-4)':'var(--text-2)',
+            display:'inline-flex',alignItems:'center',justifyContent:'center',
+            transition:'all 0.15s',lineHeight:0,
+          }}
+            onMouseEnter={e=>{e.currentTarget.style.borderColor='var(--gold)';e.currentTarget.style.color='var(--text)';}}
+            onMouseLeave={e=>{e.currentTarget.style.borderColor='var(--border-2)';e.currentTarget.style.color=sound.muted?'var(--text-4)':'var(--text-2)';}}
+          >
+            {sound.muted ? (
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+                <line x1="23" y1="9" x2="17" y2="15"/>
+                <line x1="17" y1="9" x2="23" y2="15"/>
+              </svg>
+            ) : (
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+                <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/>
+              </svg>
+            )}
+          </button>
+        </div>
+      </div>
+
+      <div className="pg-diff">
+        {DIFFICULTIES.map(d => (
+          <button
+            key={d.id}
+            className={`${d.id===difficulty?'active ':''}${d.isWilli?'willi-mode':''}`}
+            onClick={() => switchDifficulty(d.id)}
+          >{d.label}</button>
+        ))}
+      </div>
+
+      <div className="pg-color-toggle">
+        <span>Play as</span>
+        <button className={playerColor==='w'?'active':''} onClick={() => switchColor('w')}>
+          <span className="pg-color-dot white"/> White
+        </button>
+        <button className={playerColor==='b'?'active':''} onClick={() => switchColor('b')}>
+          <span className="pg-color-dot black"/> Black
+        </button>
+      </div>
+
+      <div className="pg-board-col">
+        <div className="pg-board-wrap">
+          {renderBoard()}
+
+          {/* Persistent avatar + reaction bubble at top-right of board */}
+          {isWilli && (
+            <div className="pg-avatar-anchor">
+              <div className={`pg-react-avatar${avatarPopping?' popping':''}`}>
+                {!imgError ? (
+                  <img src="site_photo.jfif" alt="Will" onError={() => setImgError(true)}/>
+                ) : (
+                  <div className="fallback">W</div>
+                )}
+              </div>
+              {currentReaction && (
+                <div className={`pg-react-bubble${currentReaction.leaving?' leaving':''}`}>
+                  {currentReaction.text}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Promotion picker overlay */}
+          {pendingPromotion && (
+            <div className="pg-promo-overlay">
+              <div className="pg-promo-card">
+                {['q','r','b','n'].map(p => (
+                  <button key={p} onClick={() => choosePromotion(p)} title={({q:'Queen',r:'Rook',b:'Bishop',n:'Knight'})[p]}>
+                    <ChessPiece code={playerColor + p.toUpperCase()} />
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+
+        <div className="pg-status">
+          <span style={{display:'inline-flex',alignItems:'center',gap:'0.45rem'}}>
+            {engineError ? (
+              <span style={{color:'#c87878'}}>Engine failed to load. Try refreshing.</span>
+            ) : !engineReady ? (
+              <span>Loading engine…</span>
+            ) : gameOver ? (
+              <span>{gameOver.result==='win'?'You won':gameOver.result==='loss'?'You lost':'Draw'}</span>
+            ) : thinking ? (
+              <>
+                <span>{diffMeta.label} is thinking</span>
+                <span className="pg-thinking-dots"><span/><span/><span/></span>
+              </>
+            ) : pendingPromotion ? (
+              <span style={{color:'var(--gold)'}}>Choose a piece to promote to</span>
+            ) : game?.turn() === playerColor ? (
+              <>
+                <span className="turn-dot your-turn"/>
+                <span>Your turn</span>
+              </>
+            ) : (
+              <span>Their turn</span>
+            )}
+          </span>
+          <span style={{fontFamily:'var(--mono)',fontSize:'0.6rem',color:'var(--text-4)'}}>
+            {game ? `Move ${Math.ceil(game.history().length/2)+1}` : ''}
+          </span>
+        </div>
+
+        {gameOver && (
+          <div className="pg-result">
+            <span>
+              {gameOver.result === 'win' && '🏁 You won by ' + gameOver.reason + '.'}
+              {gameOver.result === 'loss' && 'Defeat by ' + gameOver.reason + '.'}
+              {gameOver.result === 'draw' && 'Drawn — ' + gameOver.reason + '.'}
+            </span>
+            <button onClick={() => newGame()}>Rematch</button>
+          </div>
+        )}
+
+        <div className="pg-controls">
+          <button onClick={() => newGame()}>New game</button>
+        </div>
+
+        {/* Move history scoresheet */}
+        <div className="pg-history">
+          <div className="pg-history-label">Moves</div>
+          {moveHistoryRows.length === 0 ? (
+            <div className="pg-history-empty">No moves yet.</div>
+          ) : (
+            <div className="pg-history-table">
+              {moveHistoryRows.map(row => (
+                <React.Fragment key={row.n}>
+                  <div className="num">{row.n}.</div>
+                  <div className="move">{row.w}</div>
+                  <div className="move">{row.b}</div>
+                </React.Fragment>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function App() {
   const [route,rawNav]=useRoute();
   const dirRef = useRef('none');
   const prevRouteRef = useRef(route);
-  const ROUTE_ORDER = ['/home','/chat','/architecture','/projects','/admin'];
+  const ROUTE_ORDER = ['/home','/chat','/architecture','/projects','/playground','/admin'];
 
   const nav = (newRoute) => {
     if (newRoute === prevRouteRef.current) return;
@@ -1135,7 +2648,8 @@ function App() {
     '/home':<HomePage nav={nav}/>,
     '/chat':<ChatPage adminAuthed={adminAuthed} onLogout={doLogout}/>,
     '/architecture':<ArchitecturePage/>,
-    '/projects':<ProjectsPage/>,
+    '/projects':<ProjectsPage nav={nav}/>,
+    '/playground':<PlaygroundPage/>,
     '/admin':<AdminPage adminAuthed={adminAuthed} onLogin={doLogin} onLogout={doLogout}/>,
   };
   const anim = dirRef.current === 'right'

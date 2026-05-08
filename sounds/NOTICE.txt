@@ -1,0 +1,8 @@
+Sound effects in this directory are sourced from the Lichess `lila` repository:
+    https://github.com/lichess-org/lila
+Pack: nes
+Author: Enigmahack
+License: GNU Affero General Public License v3.0 or later (AGPLv3+)
+
+Files were downloaded and renamed for use by the WiLLi Playground chess feature.
+The original files are available in the lila repository under public/sound/nes/.

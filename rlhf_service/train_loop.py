@@ -61,10 +61,16 @@ peft_config = LoraConfig(
 model = get_peft_model(model, peft_config)
 
 # --- Kafka Consumer Setup ---
+# Online learning: only react to NEW feedback, never replay backlog.
+# 'latest' means: if our offset is invalid (broker truncation, fresh group, etc.),
+# skip everything that already exists and only process messages that arrive after we connect.
+# We also commit each message manually after a successful training step so the
+# offset is durably tracked even across consumer restarts.
 conf = {
     'bootstrap.servers': KAFKA_BROKER,
     'group.id': 'willi-train',
-    'auto.offset.reset': 'earliest'
+    'auto.offset.reset': 'latest',
+    'enable.auto.commit': False,
 }
 consumer = Consumer(conf)
 consumer.subscribe(['rlhf-feedback'])
@@ -187,6 +193,93 @@ def run_dpo_step(batch):
 
     print(f"[{timestamp}] Model Updated and Adapter Saved.")
 
+    # ─────────────────────────────────────────────────────────────
+    # Checkpoint snapshot — keeps last 10 versions for rollback
+    # ─────────────────────────────────────────────────────────────
+    try:
+        checkpoints_dir = os.path.join(root_dir, "willi_adapter_checkpoints")
+        manifest_path = os.path.join(checkpoints_dir, "manifest.json")
+        os.makedirs(checkpoints_dir, exist_ok=True)
+
+        # Read existing manifest to determine next version number
+        manifest = {"active": None, "history": []}
+        if os.path.exists(manifest_path):
+            try:
+                with open(manifest_path, "r") as f:
+                    manifest = json.load(f)
+            except Exception:
+                pass
+
+        # Pick next version. Prefer counting actual checkpoint dirs over manifest history.
+        existing = [d for d in os.listdir(checkpoints_dir)
+                    if os.path.isdir(os.path.join(checkpoints_dir, d)) and d.startswith("v")]
+        next_n = 1
+        if existing:
+            nums = []
+            for d in existing:
+                try: nums.append(int(d[1:]))
+                except: pass
+            if nums: next_n = max(nums) + 1
+        version = f"v{next_n}"
+
+        cp_path = os.path.join(checkpoints_dir, version)
+        if os.path.exists(cp_path):
+            shutil.rmtree(cp_path)
+        shutil.copytree("./willi_adapter", cp_path)
+
+        # Update manifest. Record created_at for this version — filesystem
+        # mtime is unreliable on Windows after copytree (it inherits source mtime),
+        # so we keep our own authoritative timestamp.
+        manifest["active"] = version
+        history = manifest.get("history", [])
+        history.insert(0, version)
+        manifest["history"] = history[:50]  # keep manifest small
+        timestamps = manifest.get("timestamps", {})
+        timestamps[version] = datetime.now().isoformat()
+        manifest["timestamps"] = timestamps
+        with open(manifest_path, "w") as f:
+            json.dump(manifest, f, indent=2)
+
+        # Prune to last 10 checkpoint dirs (newest by version number)
+        all_dirs = []
+        for d in os.listdir(checkpoints_dir):
+            full = os.path.join(checkpoints_dir, d)
+            if os.path.isdir(full) and d.startswith("v"):
+                try:
+                    all_dirs.append((int(d[1:]), full))
+                except:
+                    pass
+        all_dirs.sort(reverse=True)  # highest version first
+        for _, old in all_dirs[10:]:
+            try:
+                shutil.rmtree(old)
+            except Exception as e:
+                print(f"Failed to prune {old}: {e}")
+
+        print(f"[{timestamp}] Checkpoint saved: {version}")
+    except Exception as e:
+        print(f"Checkpoint save failed (non-fatal): {e}")
+
+    # ─────────────────────────────────────────────────────────────
+    # Append to training history (for the trends chart)
+    # ─────────────────────────────────────────────────────────────
+    try:
+        history_path = os.path.join(root_dir, "training_history.jsonl")
+        history_entry = {
+            "timestamp": timestamp,
+            "version": version if 'version' in dir() else None,
+            "loss": train_metrics.get("loss"),
+            "grad_norm": train_metrics.get("grad_norm"),
+            "rewards_margin": train_metrics.get("rewards/margins"),
+            "rewards_accuracy": train_metrics.get("rewards/accuracies"),
+            "logps_chosen": train_metrics.get("logps/chosen"),
+            "logps_rejected": train_metrics.get("logps/rejected"),
+        }
+        with open(history_path, "a", encoding="utf-8") as f:
+            f.write(json.dumps(history_entry) + "\n")
+    except Exception as e:
+        print(f"Failed to append to history: {e}")
+
     with open(status_path, "w") as f:
         json.dump({"status": "complete"}, f)
 
@@ -208,7 +301,12 @@ try:
             "rejected": data['rejected']
         }]
 
-        run_dpo_step(dpo_batch)
+        try:
+            run_dpo_step(dpo_batch)
+            # Only commit after successful training — if it crashed, we'd want to retry on next start
+            consumer.commit(message=msg, asynchronous=False)
+        except Exception as e:
+            print(f"Training step failed, NOT committing offset: {e}")
 
 except KeyboardInterrupt:
     pass

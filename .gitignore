@@ -1,9 +1,7 @@
 .venv/
-
 # OS junk
 .DS_Store
 Thumbs.db
-
 .env
 .streamlit/secrets.toml
 chroma_db/
@@ -17,13 +15,27 @@ __pycache__/
 0.46.1/
 how_to_start_local.txt
 start_willi.bat
-start_redpanda.sh.env 
-
+start_redpanda.sh.env
 start_willi_lite.bat
 start_willi.bat
 changes.txt
 *.bat
-
 resume.pdf
 will_context.txt
 site_photo.jfif
+
+# Scratch / experimental copies
+index2.html
+index22.html
+*_gold.py
+
+# Personal context (private)
+will_context*
+reactions.json
+
+# Runtime data artifacts (regenerated; not source code)
+pending_feedback.jsonl
+training_history.jsonl
+
+# Trained model checkpoints (large binaries; back up separately)
+willi_adapter_checkpoints/
